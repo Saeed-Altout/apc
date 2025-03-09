@@ -19,7 +19,7 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between flex-wrap gap-4">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter tasks..."
