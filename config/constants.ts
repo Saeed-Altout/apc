@@ -5,7 +5,7 @@ export const NAME_PROJECT = "Apc Prime";
 export const ROUTES = [
   {
     title: "Home",
-    url: "/dashboard",
+    url: "/",
     items: [],
     icon: Home,
   },
