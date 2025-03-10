@@ -2,6 +2,7 @@ import { Metadata } from "next";
 
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "User Management",
@@ -802,6 +803,7 @@ export default function UsersPage() {
           Manage, block, edit, and delete users in your mobile application
         </p>
       </div>
+      <Separator/>
       <DataTable data={users} columns={columns} />
     </>
   );
