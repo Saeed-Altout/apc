@@ -11,6 +11,8 @@ import { AddUserModal } from "@/components/modals/add-user-modal";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { BlockUserModal } from "@/components/modals/block-user-modal";
+import { DeleteUserModal } from "@/components/modals/delete-user-modal";
 
 export default function UsersPage() {
   const { onOpen } = useModal();
@@ -801,6 +803,8 @@ export default function UsersPage() {
   return (
     <>
       <AddUserModal />
+      <BlockUserModal />
+      <DeleteUserModal />
       <Heading
         title="Users"
         description="Manage, block, edit, and delete users in your mobile application"
