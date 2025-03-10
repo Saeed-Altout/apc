@@ -1,7 +1,7 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { Plus, UploadCloud, X } from "lucide-react";
+import { UploadCloud, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,11 +50,8 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center justify-end gap-4">
-        <Button variant="tertiary">
+        <Button variant="outline">
           <UploadCloud /> Export
-        </Button>
-        <Button>
-          <Plus /> Add
         </Button>
       </div>
     </div>

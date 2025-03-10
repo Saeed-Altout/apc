@@ -1,16 +1,19 @@
-import { Metadata } from "next";
+"use client";
+import { Plus } from "lucide-react";
 
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
-import { Separator } from "@/components/ui/separator";
 
-export const metadata: Metadata = {
-  title: "User Management",
-  description:
-    "Manage, block, edit, and delete users in your mobile application",
-};
+import { Button } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { Separator } from "@/components/ui/separator";
+import { AddUserModal } from "@/components/modals/add-user-modal";
+
+import { useModal } from "@/hooks/use-modal";
+import { ModalType } from "@/config/enums";
 
 export default function UsersPage() {
+  const { onOpen } = useModal();
   const users = [
     {
       id: "TASK-8782",
@@ -797,13 +800,20 @@ export default function UsersPage() {
 
   return (
     <>
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">Users</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage, block, edit, and delete users in your mobile application
-        </p>
-      </div>
-      <Separator/>
+      <AddUserModal />
+      <Heading
+        title="Users"
+        description="Manage, block, edit, and delete users in your mobile application"
+      >
+        <Button
+          onClick={() => {
+            onOpen(ModalType.ADD_USER);
+          }}
+        >
+          <Plus /> Add
+        </Button>
+      </Heading>
+      <Separator />
       <DataTable data={users} columns={columns} />
     </>
   );
