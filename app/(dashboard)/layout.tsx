@@ -6,9 +6,10 @@ import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserRole } from "@/config/enums";
-import { AddUserModal } from "@/components/modals/add-user-modal";
-import { BlockUserModal } from "@/components/modals/block-user-modal";
-import { DeleteUserModal } from "@/components/modals/delete-user-modal";
+
+import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
+import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
+import { DeleteUserModal } from "./(routes)/users/_components/delete-user-modal";
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
