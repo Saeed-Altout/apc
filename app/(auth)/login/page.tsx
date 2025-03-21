@@ -68,7 +68,7 @@ export default function LoginPage() {
       console.log("Form data submitted:", data);
 
       // Redirect to dashboard after successful login
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
     } finally {
