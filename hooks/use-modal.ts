@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import { ModalType } from "@/config/enums";
 import { User } from "@/schemas/user";
+import { Request } from "@/schemas/request";
 
 interface ModalStore {
   type: ModalType | null;
   isOpen: boolean;
   data?: {
     user?: User;
+    request?: Request;
   };
-  onOpen: (type: ModalType, data?: { user?: User }) => void;
+  onOpen: (type: ModalType, data?: { user?: User; request?: Request }) => void;
   onClose: () => void;
 }
 

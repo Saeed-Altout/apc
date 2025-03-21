@@ -4,6 +4,11 @@ export enum ModalType {
   BLOCK_USER = "BLOCK_USER",
   DELETE_USER = "DELETE_USER",
   EXPORT_USER = "EXPORT_USER",
+  ADD_REQUEST = "ADD_REQUEST",
+  EDIT_REQUEST = "EDIT_REQUEST",
+  APPROVE_REQUEST = "APPROVE_REQUEST",
+  REJECT_REQUEST = "REJECT_REQUEST",
+  EXPORT_REQUEST = "EXPORT_REQUEST",
 }
 
 export enum UserRole {
@@ -17,4 +22,10 @@ export enum UserStatus {
   INACTIVE = "inactive",
   BLOCKED = "blocked",
   PENDING = "pending",
+}
+
+export enum RequestStatus {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
 }
