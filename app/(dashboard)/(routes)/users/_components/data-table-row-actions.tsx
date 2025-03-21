@@ -1,12 +1,21 @@
 "use client";
 
 import { Row } from "@tanstack/react-table";
-import { Ban, Edit, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal, Pencil, Shield, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { taskSchema } from "../data/schema";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { User } from "@/schemas/user";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -15,32 +24,45 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const router = useRouter();
   const { onOpen } = useModal();
-  const task = taskSchema.parse(row.original);
-  console.log(task);
+  const user = row.original as User;
+
+  const handleEdit = () => {
+    router.push(`/users/${user.id}/edit`);
+  };
+
+  const handleBlock = () => {
+    onOpen(ModalType.BLOCK_USER, { user });
+  };
+
+  const handleDelete = () => {
+    onOpen(ModalType.DELETE_USER, { user });
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => onOpen(ModalType.BLOCK_USER)}
-      >
-        <Ban />
-        <span className="sr-only">Ban</span>
-      </Button>
-      <Button
-        variant="destructive"
-        size="icon"
-        onClick={() => onOpen(ModalType.DELETE_USER)}
-      >
-        <Trash />
-        <span className="sr-only">Trash</span>
-      </Button>
-      <Button variant="default" size="icon">
-        <Edit />
-        <span className="sr-only">Edit</span>
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleEdit}>
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleBlock}>
+          <Shield className="mr-2 h-4 w-4" />
+          {user.status === "blocked" ? "Unblock" : "Block"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleDelete}>
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

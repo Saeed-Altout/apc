@@ -4,6 +4,11 @@ import { seoConfig } from "@/config";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserRole } from "@/config/enums";
+import { AddUserModal } from "@/components/modals/add-user-modal";
+import { BlockUserModal } from "@/components/modals/block-user-modal";
+import { DeleteUserModal } from "@/components/modals/delete-user-modal";
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
@@ -19,11 +24,26 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center gap-2 border-b px-4 z-50">
+        <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center justify-between gap-2 border-b px-4 z-50">
           <SidebarTrigger className="-ml-1" />
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end mr-2">
+              <span className="text-sm font-medium">Hozan</span>
+              <span className="text-xs text-muted-foreground">
+                {UserRole.ADMIN}
+              </span>
+            </div>
+            <Avatar>
+              <AvatarImage src="/avatar.png" alt="Admin" />
+              <AvatarFallback>AD</AvatarFallback>
+            </Avatar>
+          </div>
         </header>
         <div className="flex flex-1 flex-col gap-8 py-4 px-4 md:px-6 lg:px-8 xl:px-10">
           {children}
+          <AddUserModal />
+          <BlockUserModal />
+          <DeleteUserModal />
         </div>
       </SidebarInset>
     </SidebarProvider>

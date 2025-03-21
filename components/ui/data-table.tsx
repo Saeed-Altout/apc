@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   ColumnDef,
@@ -24,26 +22,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterableColumns?: {
+    id: string;
+    title: string;
+    options: {
+      label: string;
+      value: string;
+    }[];
+  }[];
+  searchableColumns?: {
+    id: string;
+    title: string;
+  }[];
+  defaultSort?: {
+    id: string;
+    desc: boolean;
+  };
+  actions?: React.ReactNode;
+  defaultVisibleColumns?: {
+    id: string;
+    title: string;
+    visible: boolean;
+  }[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterableColumns = [],
+  searchableColumns = [],
+  defaultSort,
+  actions,
+  defaultVisibleColumns = [],
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(
+      defaultVisibleColumns.reduce((acc, column) => {
+        acc[column.id] = column.visible;
+        return acc;
+      }, {} as VisibilityState)
+    );
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>(
+    defaultSort ? [defaultSort] : []
+  );
 
   const table = useReactTable({
     data,
@@ -69,7 +100,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar
+        table={table}
+        filterableColumns={filterableColumns}
+        searchableColumns={searchableColumns}
+        actions={actions}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
