@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { seoConfig } from "@/config";
 import { Toaster } from "@/components/ui/sonner";
+import { ReactQueryProvider } from "@/lib/react-query/provider";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -29,8 +30,10 @@ export default function RootLayout({
       <body
         className={`${montserrat.className} ${inter.className} antialiased`}
       >
-        {children}
-        <Toaster position="top-center" />
+        <ReactQueryProvider>
+          {children}
+          <Toaster position="top-center" />
+        </ReactQueryProvider>
       </body>
     </html>
   );
