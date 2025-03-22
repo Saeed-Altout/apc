@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosError } from "axios";
-import { localeStorage } from "@/utils/local-storage";
+import { localStorage as ls } from "@/utils/local-storage";
 
 const defaultConfig: AxiosRequestConfig = {
   baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
@@ -13,8 +13,7 @@ export const apiClient = axios.create(defaultConfig);
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token =
-      typeof window !== "undefined" ? localeStorage.getAccessToken() : null;
+    const token = typeof window !== "undefined" ? ls.getAccessToken() : null;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -39,7 +38,7 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (typeof window !== "undefined") {
-        const refreshToken = localeStorage.getRefreshToken();
+        const refreshToken = ls.getRefreshToken();
 
         if (refreshToken) {
           try {
@@ -52,7 +51,7 @@ apiClient.interceptors.response.use(
 
             const { token } = response.data;
 
-            localeStorage.setAccessToken(token);
+            ls.setAccessToken(token);
 
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${token}`;
@@ -60,7 +59,7 @@ apiClient.interceptors.response.use(
 
             return apiClient(originalRequest);
           } catch (refreshError) {
-            localeStorage.clear();
+            ls.clear();
             //TODO: queryClient.clear()
             if (typeof window !== "undefined") {
               window.location.href = "/auth/login";

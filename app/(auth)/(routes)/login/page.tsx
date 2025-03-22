@@ -107,12 +107,12 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Link
+              {/* <Link
                 href="/forgot-password"
                 className="text-sm text-[#0f766d] hover:underline"
               >
                 Forgot your password
-              </Link>
+              </Link> */}
             </div>
 
             <Button

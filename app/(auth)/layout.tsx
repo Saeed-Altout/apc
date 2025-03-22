@@ -12,21 +12,19 @@ export const metadata: Metadata = {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Wave background at the bottom */}
       <div className="fixed bottom-0 w-full">
         <svg
-          viewBox="0 0 1000 150"
+          viewBox="0 0 1000 200"
           preserveAspectRatio="none"
           className="w-full h-auto"
         >
           <path
-            d="M0,0 C300,100 600,100 1000,0 L1000,150 L0,150 Z"
+            d="M0,0 C300,150 750,150 1000,0 L1000,200 L0,200 Z"
             className="fill-[#0f766d]"
           />
         </svg>
       </div>
 
-      {/* Admin security badge */}
       <div className="absolute top-4 left-4 px-3 py-1 bg-[#0f766d] text-white text-xs font-semibold rounded-full">
         Secure Admin Portal
       </div>

@@ -6,6 +6,9 @@ declare type User = {
   role: string;
 };
 
-declare type RequestSmsTokenCredentialsType = {
+declare type RequestSmsTokenCredentialsType = { phoneNumber: string };
+declare type VerifySmsTokenCredentialsType = {
   phoneNumber: string;
+  token: string;
 };
+declare type WhatsappProviderCredentialsType = { token: string };

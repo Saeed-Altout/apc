@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
 
-import { Cookie } from "@/utils/cookie";
 import { apiClient } from "@/lib/api-client";
-import { localeStorage } from "@/utils/local-storage";
+import { cookie as co } from "@/utils/cookie";
+import { localStorage as ls } from "@/utils/local-storage";
 
 interface AuthResponse {
   token?: string;
@@ -26,16 +26,12 @@ export const AuthService = {
   },
 
   verifySmsToken: async (
-    phoneNumber: string,
-    code: string
+    data: VerifySmsTokenCredentialsType
   ): Promise<AxiosResponse<AuthResponse>> => {
     try {
       const response = await apiClient.post<AuthResponse>(
         AuthService.VERIFY_SMS_TOKEN_URL,
-        {
-          phoneNumber,
-          code,
-        }
+        data
       );
 
       AuthService.handleAuthToken(response.data);
@@ -46,11 +42,13 @@ export const AuthService = {
     }
   },
 
-  whatsappAuth: async (token: string): Promise<AxiosResponse<AuthResponse>> => {
+  whatsappProvider: async (
+    data: WhatsappProviderCredentialsType
+  ): Promise<AxiosResponse<AuthResponse>> => {
     try {
       const response = await apiClient.post<AuthResponse>(
         AuthService.WHATSAPP_AUTH_URL,
-        { token }
+        data
       );
 
       AuthService.handleAuthToken(response.data);
@@ -63,21 +61,21 @@ export const AuthService = {
 
   handleAuthToken: (data: AuthResponse): void => {
     if (data.token) {
-      localeStorage.setAccessToken(data.token);
-      Cookie.setAccessToken(data.token);
+      ls.setAccessToken(data.token);
+      co.setAccessToken(data.token);
     }
   },
 
   logout: async (): Promise<void> => {
     if (typeof window !== "undefined") {
-      localeStorage.removeAccessToken();
-      Cookie.removeAccessToken();
+      ls.clear();
+      co.removeAccessToken();
     }
   },
 
   isAuthenticated: (): boolean => {
     if (typeof window !== "undefined") {
-      return !!localeStorage.getAccessToken();
+      return !!ls.getAccessToken();
     }
     return false;
   },

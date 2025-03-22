@@ -1,11 +1,11 @@
 import { setCookie, deleteCookie, getCookie } from "cookies-next";
 
-export const Cookie = {
+export const cookie = {
   AUTH_TOKEN_KEY: "auth-token-key",
 
   setAccessToken: (token: string): void => {
     if (typeof window !== "undefined") {
-      setCookie(Cookie.AUTH_TOKEN_KEY, token, {
+      setCookie(cookie.AUTH_TOKEN_KEY, token, {
         maxAge: 30 * 24 * 60 * 60,
         path: "/",
         secure: process.env.NODE_ENV === "production",
@@ -16,14 +16,14 @@ export const Cookie = {
 
   getAccessToken: (): string | null => {
     if (typeof window !== "undefined") {
-      return getCookie(Cookie.AUTH_TOKEN_KEY) as string | null;
+      return getCookie(cookie.AUTH_TOKEN_KEY) as string | null;
     }
     return null;
   },
 
   removeAccessToken: (): void => {
     if (typeof window !== "undefined") {
-      deleteCookie(Cookie.AUTH_TOKEN_KEY, { path: "/" });
+      deleteCookie(cookie.AUTH_TOKEN_KEY, { path: "/" });
     }
   },
 };
