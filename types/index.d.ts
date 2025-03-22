@@ -7,8 +7,8 @@ declare type User = {
 };
 
 declare type RequestSmsTokenCredentialsType = { phoneNumber: string };
+declare type WhatsappProviderCredentialsType = { token: string };
 declare type VerifySmsTokenCredentialsType = {
   phoneNumber: string;
   token: string;
 };
-declare type WhatsappProviderCredentialsType = { token: string };

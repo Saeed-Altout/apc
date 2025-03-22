@@ -1,8 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosError } from "axios";
-import { localStorage as ls } from "@/utils/local-storage";
+import { localStorageManager } from "@/utils/local-storage";
 
 const defaultConfig: AxiosRequestConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://apc-app.apcprime.com/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -13,7 +13,10 @@ export const apiClient = axios.create(defaultConfig);
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = typeof window !== "undefined" ? ls.getAccessToken() : null;
+    const token =
+      typeof window !== "undefined"
+        ? localStorageManager.getAccessToken()
+        : null;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,7 +41,7 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (typeof window !== "undefined") {
-        const refreshToken = ls.getRefreshToken();
+        const refreshToken = localStorageManager.getRefreshToken();
 
         if (refreshToken) {
           try {
@@ -51,7 +54,7 @@ apiClient.interceptors.response.use(
 
             const { token } = response.data;
 
-            ls.setAccessToken(token);
+            localStorageManager.setAccessToken(token);
 
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${token}`;
@@ -59,7 +62,7 @@ apiClient.interceptors.response.use(
 
             return apiClient(originalRequest);
           } catch (refreshError) {
-            ls.clear();
+            localStorageManager.clear();
             //TODO: queryClient.clear()
             if (typeof window !== "undefined") {
               window.location.href = "/auth/login";

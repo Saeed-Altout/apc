@@ -1,4 +1,4 @@
-export const localStorage = {
+export const localStorageManager = {
   AUTH_ACCESS_TOKEN_KEY: "auth-access-token",
   AUTH_REFRESH_TOKEN_KEY: "auth-refresh-token",
 
@@ -41,7 +41,7 @@ export const localStorage = {
   },
 
   clear: (): void => {
-    localStorage.removeAccessToken();
-    localStorage.removeRefreshToken();
+    localStorageManager.removeAccessToken();
+    localStorageManager.removeRefreshToken();
   },
 };

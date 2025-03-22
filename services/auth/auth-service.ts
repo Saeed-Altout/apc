@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
 
 import { apiClient } from "@/lib/api-client";
-import { cookie as co } from "@/utils/cookie";
-import { localStorage as ls } from "@/utils/local-storage";
+import { cookieManager } from "@/utils/cookie";
+import { localStorageManager } from "@/utils/local-storage";
 
 interface AuthResponse {
   token?: string;
@@ -10,9 +10,9 @@ interface AuthResponse {
 }
 
 export const AuthService = {
-  REQUEST_SMS_TOKEN_URL: "api/auth/request-sms-token",
+  REQUEST_SMS_TOKEN_URL: "/auth/request-sms-token",
   VERIFY_SMS_TOKEN_URL: "/auth/verify-sms-token",
-  WHATSAPP_AUTH_URL: "/api/auth/whatsapp-auth",
+  WHATSAPP_AUTH_URL: "/auth/whatsapp-auth",
 
   requestSmsToken: async (
     data: RequestSmsTokenCredentialsType
@@ -61,21 +61,21 @@ export const AuthService = {
 
   handleAuthToken: (data: AuthResponse): void => {
     if (data.token) {
-      ls.setAccessToken(data.token);
-      co.setAccessToken(data.token);
+      localStorageManager.setAccessToken(data.token);
+      cookieManager.setAccessToken(data.token);
     }
   },
 
   logout: async (): Promise<void> => {
     if (typeof window !== "undefined") {
-      ls.clear();
-      co.removeAccessToken();
+      localStorageManager.clear();
+      cookieManager.clear();
     }
   },
 
   isAuthenticated: (): boolean => {
     if (typeof window !== "undefined") {
-      return !!ls.getAccessToken();
+      return !!localStorageManager.getAccessToken();
     }
     return false;
   },
