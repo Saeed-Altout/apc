@@ -5,3 +5,7 @@ declare type User = {
   phoneNumber: string;
   role: string;
 };
+
+declare type RequestSmsTokenCredentialsType = {
+  phoneNumber: string;
+};

@@ -1,25 +1,47 @@
-export class LocaleStorage {
-  private static instance: LocaleStorage;
-  private static readonly TOKEN_KEY = "token";
+export const localeStorage = {
+  AUTH_ACCESS_TOKEN_KEY: "auth-access-token",
+  AUTH_REFRESH_TOKEN_KEY: "auth-refresh-token",
 
-  private constructor() {}
-
-  public static getInstance(): LocaleStorage {
-    if (!LocaleStorage.instance) {
-      LocaleStorage.instance = new LocaleStorage();
+  setAccessToken: (token: string): void => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(localeStorage.AUTH_ACCESS_TOKEN_KEY, token);
     }
-    return LocaleStorage.instance;
-  }
+  },
 
-  public static setAccessToken(token: string) {
-    localStorage.setItem(LocaleStorage.TOKEN_KEY, token);
-  }
+  getAccessToken: (): string | null => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(localeStorage.AUTH_ACCESS_TOKEN_KEY);
+    }
+    return null;
+  },
 
-  public static getAccessToken(): string | null {
-    return localStorage.getItem(LocaleStorage.TOKEN_KEY);
-  }
+  removeAccessToken: (): void => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(localeStorage.AUTH_ACCESS_TOKEN_KEY);
+    }
+  },
 
-  public static removeAccessToken() {
-    localStorage.removeItem(LocaleStorage.TOKEN_KEY);
-  }
-}
+  setRefreshToken: (token: string): void => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(localeStorage.AUTH_REFRESH_TOKEN_KEY, token);
+    }
+  },
+
+  getRefreshToken: (): string | null => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(localeStorage.AUTH_REFRESH_TOKEN_KEY);
+    }
+    return null;
+  },
+
+  removeRefreshToken: (): void => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(localeStorage.AUTH_REFRESH_TOKEN_KEY);
+    }
+  },
+
+  clear: (): void => {
+    localeStorage.removeAccessToken();
+    localeStorage.removeRefreshToken();
+  },
+};

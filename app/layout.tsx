@@ -5,7 +5,7 @@ import "./globals.css";
 
 import { seoConfig } from "@/config";
 import { Toaster } from "@/components/ui/sonner";
-import { ReactQueryProvider } from "@/lib/react-query/provider";
+import ReactQueryProvider from "@/providers/react-query-provider";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           {children}
-          <Toaster position="top-center" />
+          <Toaster />
         </ReactQueryProvider>
       </body>
     </html>
