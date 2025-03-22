@@ -6,6 +6,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PhoneInput } from "react-international-phone";
 
 import {
   Form,
@@ -76,9 +77,9 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Phone number</FormLabel>
                   <FormControl>
-                    <Input
-                      disabled={isPending}
-                      placeholder="09123456789"
+                    <PhoneInput
+                      className="react-international-phone-input-container"
+                      defaultCountry="ae"
                       {...field}
                     />
                   </FormControl>
