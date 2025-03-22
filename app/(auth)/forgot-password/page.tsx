@@ -1,10 +1,14 @@
 "use client";
+import * as React from "react";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
+
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   Card,
   CardContent,
@@ -13,12 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -27,9 +25,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-// Define Zod schema for forgot password form validation
 const forgotPasswordSchema = z.object({
   email: z
     .string()
@@ -42,11 +41,7 @@ type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
 
-  // Initialize form with react-hook-form and zod validation
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -54,29 +49,12 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordFormValues) => {
-    setIsLoading(true);
-
-    try {
-      // Simulating API call to send password reset instructions
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // In a real app, a unique token would be generated server-side
-      // and the reset link would include both the email and this token
-      console.log("Password reset requested for:", data.email);
-
-      setSubmittedEmail(data.email);
-      setIsSubmitted(true);
-    } catch (error) {
-      console.error("Password reset request failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (values: ForgotPasswordFormValues) => {
+    console.log(values);
   };
 
   return (
     <div className="w-full max-w-md">
-      {/* Logo */}
       <div className="flex justify-center mb-8">
         <div className="flex items-center gap-2">
           <div className="bg-[#0f766d] text-white p-2 rounded-md">
@@ -100,17 +78,16 @@ export default function ForgotPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isSubmitted ? (
+          {form.formState.isSubmitted ? (
             <Alert className="bg-green-50 border-green-100">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <AlertTitle className="text-green-800 font-semibold">
                 Reset Instructions Sent
               </AlertTitle>
               <AlertDescription className="text-green-700">
-                We've sent password reset instructions to {submittedEmail}.
-                Please check your inbox and click on the reset password link to
-                continue.
-                {/* This is for demonstration purposes only - in a real app, this link would be sent via email */}
+                We've sent password reset instructions to{" "}
+                {form.getValues("email")}. Please check your inbox and click on
+                the reset password link to continue.
                 <div className="mt-3 p-3 bg-green-100 border border-green-200 rounded-md">
                   <p className="text-xs text-green-800 mb-2">
                     Demo: Click the link below to simulate clicking the link
@@ -118,13 +95,13 @@ export default function ForgotPasswordPage() {
                   </p>
                   <Link
                     href={`/new-password?email=${encodeURIComponent(
-                      submittedEmail
+                      form.getValues("email")
                     )}&token=${encodeURIComponent(
                       "demo-reset-token-" + Date.now()
                     )}`}
                     className="text-xs text-blue-600 underline"
                   >
-                    Reset password for {submittedEmail}
+                    Reset password for {form.getValues("email")}
                   </Link>
                 </div>
               </AlertDescription>
@@ -162,16 +139,15 @@ export default function ForgotPasswordPage() {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
                   className="w-full bg-[#0f766d] hover:bg-[#0f766d]/90 text-white"
                 >
-                  Send Reset Link {isLoading && <Spinner variant="circle" />}
+                  Send Reset Link
                 </Button>
               </form>
             </Form>
           )}
         </CardContent>
-        {!isSubmitted && (
+        {!form.formState.isSubmitted && (
           <CardFooter className="flex justify-center">
             <Link
               href="/login"

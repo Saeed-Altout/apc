@@ -1,25 +1,22 @@
 "use client";
+import * as React from "react";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { FaTelegram } from "react-icons/fa";
 import { FaWhatsapp } from "react-icons/fa";
+
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -28,14 +25,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/spinner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-// Define Zod schema for login form validation
 const loginFormSchema = z.object({
-  email: z
+  phoneNumber: z
     .string()
-    .min(1, { message: "Email or phone is required" })
-    .describe("Email or phone"),
+    .min(1, { message: "Phone number is required" })
+    .describe("Phone number"),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" })
@@ -46,39 +44,21 @@ const loginFormSchema = z.object({
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Initialize form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      phoneNumber: "",
       password: "",
       rememberMe: false,
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-
-    try {
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Form data submitted:", data);
-
-      // Redirect to dashboard after successful login
-      router.push("/");
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (values: LoginFormValues) => {
+    console.log(values);
   };
 
   return (
     <div className="w-full max-w-md">
-      {/* Logo */}
       <div className="flex justify-center mb-8">
         <div className="flex items-center gap-2">
           <div className="bg-[#0f766d] text-white p-2 rounded-md">
@@ -106,18 +86,17 @@ export default function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email or phone</FormLabel>
+                    <FormLabel>Phone number</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@email.com" {...field} required />
+                      <Input placeholder="09123456789" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="password"
@@ -125,12 +104,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••"
-                        {...field}
-                        required
-                      />
+                      <Input type="password" placeholder="••••••" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -165,10 +139,9 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                disabled={isLoading}
                 className="w-full bg-[#0f766d] hover:bg-[#0f766d]/90 text-white"
               >
-                Log in {isLoading && <Spinner variant="circle" />}
+                Log in
               </Button>
 
               <div className="relative my-4">

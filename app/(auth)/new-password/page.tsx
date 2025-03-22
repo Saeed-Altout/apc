@@ -1,22 +1,20 @@
 "use client";
+import * as React from "react";
 
-import { useState, useEffect } from "react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -25,8 +23,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/spinner";
-// Define Zod schema for new password form validation
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 const newPasswordSchema = z
   .object({
     password: z
@@ -52,24 +53,18 @@ type NewPasswordFormValues = z.infer<typeof newPasswordSchema>;
 export default function NewPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [email, setEmail] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    // Get email and token from query parameters
+  React.useEffect(() => {
     const emailParam = searchParams.get("email");
     const tokenParam = searchParams.get("token");
 
-    // In a real app, we would validate the token server-side
-    // For this demo, we'll just check if it exists
     if (!emailParam) {
       setError("Invalid password reset link. Email is missing.");
       return;
     }
 
-    // In a production app, you'd verify the token with your API
     if (!tokenParam && process.env.NODE_ENV === "production") {
       setError(
         "Invalid or expired password reset link. Please request a new one."
@@ -80,7 +75,6 @@ export default function NewPasswordPage() {
     setEmail(emailParam);
   }, [searchParams]);
 
-  // Initialize form with react-hook-form and zod validation
   const form = useForm<NewPasswordFormValues>({
     resolver: zodResolver(newPasswordSchema),
     defaultValues: {
@@ -89,38 +83,18 @@ export default function NewPasswordPage() {
     },
   });
 
-  const onSubmit = async (data: NewPasswordFormValues) => {
-    if (!email) {
-      setError(
-        "Email address is missing. Please request a new password reset link."
-      );
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulating API call to reset password
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log("Password reset data:", {
-        email,
-        password: data.password,
-      });
-
-      setIsSubmitted(true);
-    } catch (error) {
-      console.error("Password reset failed:", error);
-      setError("Failed to reset password. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (values: NewPasswordFormValues) => {
+    console.log(values);
   };
 
   const handleBackToLogin = () => {
     router.push("/login");
   };
+
+  const hasCapitalLetter = form.watch("password")?.match(/[A-Z]/);
+  const hasLowerCaseLetter = form.watch("password")?.match(/[a-z]/);
+  const hasNumber = form.watch("password")?.match(/[0-9]/);
+  const hasLength = form.watch("password")?.length >= 8;
 
   if (error) {
     return (
@@ -195,7 +169,7 @@ export default function NewPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isSubmitted ? (
+          {form.formState.isSubmitted ? (
             <Alert className="bg-green-50 border-green-100">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <AlertTitle className="text-green-800 font-semibold">
@@ -229,7 +203,6 @@ export default function NewPasswordPage() {
                           type="password"
                           placeholder="••••••••"
                           {...field}
-                          required
                         />
                       </FormControl>
                       <FormMessage />
@@ -248,7 +221,6 @@ export default function NewPasswordPage() {
                           type="password"
                           placeholder="••••••••"
                           {...field}
-                          required
                         />
                       </FormControl>
                       <FormMessage />
@@ -258,20 +230,31 @@ export default function NewPasswordPage() {
 
                 <div className="text-xs text-gray-500 space-y-1">
                   <p>Password must:</p>
-                  <ul className="list-disc pl-4">
-                    <li>Be at least 8 characters long</li>
-                    <li>Include at least one uppercase letter</li>
-                    <li>Include at least one lowercase letter</li>
-                    <li>Include at least one number</li>
-                  </ul>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={!!hasLength} />
+                      <span>Be at least 8 characters long</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={!!hasCapitalLetter} />
+                      <span>Include at least one uppercase letter</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={!!hasLowerCaseLetter} />
+                      <span>Include at least one lowercase letter</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={!!hasNumber} />
+                      <span>Include at least one number</span>
+                    </div>
+                  </div>
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
                   className="w-full bg-[#0f766d] hover:bg-[#0f766d]/90 text-white"
                 >
-                  Reset Password {isLoading && <Spinner variant="circle" />}
+                  Reset Password
                 </Button>
               </form>
             </Form>
