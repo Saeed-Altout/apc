@@ -2,6 +2,7 @@
 import * as React from "react";
 
 import { PhoneInput } from "react-international-phone";
+import { Eye, EarOff, EyeOff } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -40,7 +41,10 @@ const loginFormSchema = z.object({
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export default function LoginPage() {
-  const { mutateAsync: login, isPending } = useLogin();
+  const [isPassword, setIsPassword] = React.useState<"password" | "text">(
+    "password"
+  );
+  const { mutate: login, isPending } = useLogin();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -59,6 +63,7 @@ export default function LoginPage() {
       password: values.password,
     });
   };
+
   return (
     <div className="w-full max-w-md">
       <div className="flex justify-center mb-8">
@@ -96,6 +101,7 @@ export default function LoginPage() {
                         <PhoneInput
                           className="react-international-phone-input-container"
                           defaultCountry="ae"
+                          disabled={isPending}
                           {...field}
                         />
                       </FormControl>
@@ -114,7 +120,9 @@ export default function LoginPage() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder="example@gmail.com"
+                          disabled={isPending}
+                          className="mb-2"
                           {...field}
                         />
                       </FormControl>
@@ -131,7 +139,29 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <div className="relative">
+                      <Input
+                        type={isPassword}
+                        disabled={isPending}
+                        className="pr-12"
+                        placeholder="*******"
+                        {...field}
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        type="button"
+                        className="absolute top-1/2 -translate-y-1/2 right-2"
+                        onClick={() =>
+                          setIsPassword((prev) =>
+                            prev === "password" ? "text" : "password"
+                          )
+                        }
+                      >
+                        {isPassword === "password" && <Eye />}
+                        {isPassword === "text" && <EyeOff />}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -167,6 +197,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
+              disabled={isPending}
               className="w-full bg-[#0f766d] hover:bg-[#0f766d]/90 text-white"
             >
               Log in {isPending && <Spinner variant="circle" />}

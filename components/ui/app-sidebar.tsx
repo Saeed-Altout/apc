@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 import { ChevronRight, LogOut } from "lucide-react";
 
@@ -24,10 +26,11 @@ import {
 } from "@/components/ui/sidebar";
 import { ROUTES } from "@/config/constants";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { useLogout } from "@/services/auth/auth-hook";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { mutate: logout, isPending } = useLogout();
 
   return (
     <Sidebar {...props}>
@@ -106,7 +109,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter className="bg-primary text-primary-foreground border-t border-[#ADAEB538] mt-auto">
-        <Button variant="ghost" className="justify-start w-full">
+        <Button
+          variant="ghost"
+          className="justify-start w-full"
+          onClick={() => logout()}
+          disabled={isPending}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Log out
         </Button>

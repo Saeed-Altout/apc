@@ -1,27 +1,40 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import { AuthService } from "@/services/auth/auth-service";
+import { cookieStore } from "@/utils/cookie";
+import { localStorageStore } from "@/utils/local-storage";
 
 interface AuthStore {
   user: User | null;
-  isAuthenticated: boolean;
+  accessToken: AccessToken | null;
 
   setUser: (user: User | null) => void;
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  logout: () => void;
+  login: (accessToken: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       user: null,
-      isAuthenticated: AuthService.isAuthenticated(),
+      accessToken: null,
 
       setUser: (user) => set({ user }),
-      setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+      login: (accessToken) => {
+        if (accessToken) {
+          set({ accessToken });
+          localStorageStore.setAccessToken(accessToken);
+          cookieStore.setAccessToken(accessToken);
+        }
+      },
+      logout: () => {
+        set({ accessToken: null, user: null });
+        localStorageStore.removeAccessToken();
+        cookieStore.removeAccessToken();
+      },
     }),
     {
-      name: "auth-storage",
+      name: "auth",
       storage: createJSONStorage(() => localStorage),
     }
   )
