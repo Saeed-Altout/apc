@@ -1,3 +1,8 @@
+declare type IAxiosResponse<T> = {
+  data: T;
+  message: string | null;
+};
+
 declare type User = {
   id: string;
   name: string;
@@ -6,7 +11,22 @@ declare type User = {
   role: string;
 };
 
-declare type RequestSmsTokenCredentialsType = { phoneNumber: string };
+declare type ILoginCredentials = {
+  phoneNumber: string | null;
+  email: string | null;
+  password: string;
+};
+
+declare type ILoginResponse = IAxiosResponse<{
+  access_token: string;
+  personalInformation: null;
+}>;
+
+declare type RequestSmsTokenCredentialsType = {
+  phoneNumber: string | null;
+  email: string | null;
+  password: string;
+};
 declare type WhatsappProviderCredentialsType = { token: string };
 declare type VerifySmsTokenCredentialsType = {
   phoneNumber: string;

@@ -1,13 +1,13 @@
 "use client";
 import * as React from "react";
 
-import Link from "next/link";
+import { PhoneInput } from "react-international-phone";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PhoneInput } from "react-international-phone";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -22,33 +22,43 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 import { WrapperCard } from "../../_components/wrapper-card";
-import { useRequestSmsTokenMutation } from "@/services/auth/auth-hook";
+import { useLogin } from "@/services/auth/auth-hook";
 
 const loginFormSchema = z.object({
+  email: z.string().describe("Email"),
   phoneNumber: z
     .string()
     .min(1, { message: "Phone number is required" })
     .describe("Phone number"),
+  password: z
+    .string()
+    .min(1, { message: "Password is required" })
+    .describe("Password"),
   rememberMe: z.boolean().default(false).describe("Remember Me"),
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export default function LoginPage() {
-  const { mutateAsync, isPending } = useRequestSmsTokenMutation();
+  const { mutateAsync: login, isPending } = useLogin();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
+      email: "",
       phoneNumber: "",
       rememberMe: false,
+      password: "",
     },
   });
 
   const onSubmit = async (values: LoginFormValues) => {
-    mutateAsync({ phoneNumber: values.phoneNumber });
+    login({
+      phoneNumber: values.phoneNumber,
+      email: values.email,
+      password: values.password,
+    });
   };
-
   return (
     <div className="w-full max-w-md">
       <div className="flex justify-center mb-8">
@@ -60,28 +70,68 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="text-center mb-2">
-        <p className="text-xs text-gray-500">Admin Dashboard</p>
-      </div>
-
       <WrapperCard
         title="Admin Login"
         description="Enter your credentials to continue."
       >
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Tabs defaultValue="phoneNumber" className="space-y-2">
+              <TabsList className="w-full flex items-center justify-center">
+                <TabsTrigger className="w-1/2" value="phoneNumber">
+                  Phone Number
+                </TabsTrigger>
+                <TabsTrigger className="w-1/2" value="email">
+                  Email
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="phoneNumber">
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone number</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          className="react-international-phone-input-container"
+                          defaultCountry="ae"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+              <TabsContent value="email">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+            </Tabs>
             <FormField
               control={form.control}
-              name="phoneNumber"
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone number</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PhoneInput
-                      className="react-international-phone-input-container"
-                      defaultCountry="ae"
-                      {...field}
-                    />
+                    <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

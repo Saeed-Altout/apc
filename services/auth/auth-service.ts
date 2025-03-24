@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
 
 import { apiClient } from "@/lib/api-client";
-import { cookieManager } from "@/utils/cookie";
-import { localStorageManager } from "@/utils/local-storage";
+import { cookieStore } from "@/utils/cookie";
+import { localStorageStore } from "@/utils/local-storage";
 
 interface AuthResponse {
   token?: string;
@@ -10,9 +10,19 @@ interface AuthResponse {
 }
 
 export const AuthService = {
+  LOGIN: "/auth/login-admin",
   REQUEST_SMS_TOKEN_URL: "/auth/request-sms-token",
   VERIFY_SMS_TOKEN_URL: "/auth/verify-sms-token",
   WHATSAPP_AUTH_URL: "/auth/whatsapp-auth",
+
+  login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
+    try {
+      const res = await apiClient.post<ILoginResponse>(AuthService.LOGIN, data);
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   requestSmsToken: async (
     data: RequestSmsTokenCredentialsType
@@ -61,21 +71,21 @@ export const AuthService = {
 
   handleAuthToken: (data: AuthResponse): void => {
     if (data.token) {
-      localStorageManager.setAccessToken(data.token);
-      cookieManager.setAccessToken(data.token);
+      localStorageStore.setAccessToken(data.token);
+      cookieStore.setAccessToken(data.token);
     }
   },
 
   logout: async (): Promise<void> => {
     if (typeof window !== "undefined") {
-      localStorageManager.clear();
-      cookieManager.clear();
+      localStorageStore.clear();
+      cookieStore.clear();
     }
   },
 
   isAuthenticated: (): boolean => {
     if (typeof window !== "undefined") {
-      return !!localStorageManager.getAccessToken();
+      return !!localStorageStore.getAccessToken();
     }
     return false;
   },
