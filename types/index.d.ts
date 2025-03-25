@@ -21,6 +21,7 @@ declare type ILoginCredentials = {
 
 declare type ILoginResponse = IAxiosResponse<{
   access_token: AccessToken;
+  refresh_token?: RefreshToken;
   personalInformation: null;
 }>;
 

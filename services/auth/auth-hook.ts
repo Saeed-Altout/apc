@@ -29,3 +29,12 @@ export const useLogout = () => {
     },
   });
 };
+
+export const useRefresh = () => {
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
+  return useMutation({
+    mutationKey: ["refresh"],
+    mutationFn: () => AuthService.refresh(),
+  });
+};

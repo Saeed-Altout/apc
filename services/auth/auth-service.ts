@@ -2,7 +2,9 @@ import { apiClient } from "@/lib/api-client";
 
 export const AuthService = {
   LOGIN: "/auth/login-admin",
-  LOGOUT: "/auth/logout-access",
+  LOGOUT_ACCESS: "/auth/logout-access",
+  LOGOUT_REFRESH: "/auth/logout-refresh",
+  REFRESH: "/auth/refresh",
 
   login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
     try {
@@ -15,7 +17,24 @@ export const AuthService = {
 
   logout: async (): Promise<void> => {
     try {
-      const res = await apiClient.post(AuthService.LOGOUT);
+      await Promise.all([
+        apiClient.post(AuthService.LOGOUT_ACCESS),
+        apiClient.post(AuthService.LOGOUT_REFRESH),
+      ]);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  refresh: async (): Promise<void> => {
+    try {
+      const res = await apiClient.post(
+        AuthService.REFRESH,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       return res.data;
     } catch (error) {
       throw error;

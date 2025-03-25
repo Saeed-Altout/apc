@@ -10,31 +10,36 @@ interface AuthStore {
 
   setUser: (user: User | null) => void;
   logout: () => void;
-  login: (accessToken: string, refreshToken?: string) => void;
+  login: (accessToken: string) => void;
+  setAccessToken: (accessToken: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
 
       setUser: (user) => set({ user }),
-      login: (accessToken, refreshToken) => {
+
+      login: (accessToken) => {
         if (accessToken) {
           set({ accessToken });
           cookieStore.setAccessToken(accessToken);
         }
-        if (refreshToken) {
-          set({ refreshToken });
-          cookieStore.setRefreshToken(refreshToken);
+      },
+
+      setAccessToken: (accessToken) => {
+        if (accessToken) {
+          set({ accessToken });
+          cookieStore.setAccessToken(accessToken);
         }
       },
+
       logout: () => {
-        set({ accessToken: null, refreshToken: null, user: null });
+        set({ accessToken: null, user: null });
         cookieStore.removeAccessToken();
-        cookieStore.removeRefreshToken();
       },
     }),
     {

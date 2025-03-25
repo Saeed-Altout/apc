@@ -1,23 +1,58 @@
-import axios, { AxiosRequestConfig, AxiosError } from "axios";
+import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
+import { AuthService } from "@/services/auth/auth-service";
+import { useAuthStore } from "@/services/auth/auth-store";
 import { cookieStore } from "@/utils/cookie";
 
 const defaultConfig: AxiosRequestConfig = {
   baseURL:
     process.env.NEXT_PUBLIC_API_URL || "https://apc-app.apcprime.com/api",
-  timeout: 10000,
+  timeout: 30000, // Increased timeout for better reliability
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 };
 
 export const apiClient = axios.create(defaultConfig);
 
+// Token refresh state management
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+const addRefreshSubscriber = (callback: (token: string) => void): void => {
+  refreshSubscribers.push(callback);
+};
+
+const processRefreshQueue = (token: string): void => {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+};
+
+const onRefreshFailure = (): void => {
+  useAuthStore.getState().logout();
+  isRefreshing = false;
+  refreshSubscribers = [];
+
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+};
+
+// Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from cookie store instead of directly accessing localStorage
-    const token = cookieStore.getAccessToken();
+    // Try to get token from store first, then fallback to cookie
+    let token = useAuthStore.getState().accessToken;
 
-    if (token) {
+    if (!token) {
+      token = cookieStore.getAccessToken();
+      // If token found in cookie but not in store, update store
+      if (token) {
+        useAuthStore.getState().setAccessToken(token);
+      }
+    }
+
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -29,55 +64,89 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Response interceptor
 apiClient.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse) => {
     return response;
   },
   async (error: AxiosError) => {
+    if (!error.config) {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };
 
-    // Handle 401 Unauthorized errors
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Define endpoints that should skip the refresh token flow
+    const skipRefreshEndpoints = [
+      AuthService.REFRESH,
+      AuthService.LOGIN,
+      AuthService.LOGOUT_ACCESS,
+      AuthService.LOGOUT_REFRESH,
+    ];
+
+    const isSkipEndpoint = skipRefreshEndpoints.some((endpoint) =>
+      originalRequest.url?.includes(endpoint)
+    );
+
+    // Handle 401 Unauthorized errors with token refresh
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isSkipEndpoint
+    ) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve) => {
+          addRefreshSubscriber((token: string) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            resolve(apiClient(originalRequest));
+          });
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        // Use the auth store's refresh token mechanism
-        const response = await axios.post(
-          `${defaultConfig.baseURL}/auth/refresh`,
-          { refreshToken: cookieStore.getRefreshToken() }
-        );
+        await AuthService.refresh();
+        const { accessToken: newToken } = useAuthStore.getState();
 
-        const { access_token } = response.data.data;
+        if (newToken) {
+          useAuthStore.getState().setAccessToken(newToken);
 
-        if (access_token) {
-          // Update token in cookie store
-          cookieStore.setAccessToken(access_token);
-
-          // Update Authorization header for the retried request
           if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${access_token}`;
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
 
-          // Retry the original request with the new token
+          processRefreshQueue(newToken);
+          isRefreshing = false;
+
           return apiClient(originalRequest);
+        } else {
+          throw new Error("No access token received during refresh");
         }
       } catch (refreshError) {
-        // Clear auth data and redirect to login
-        cookieStore.removeAccessToken();
-
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-
+        onRefreshFailure();
         return Promise.reject(refreshError);
       }
     }
 
-    // Handle network errors with more detailed message
+    // Handle network errors
     if (error.message === "Network Error") {
       console.error("Network error detected. Please check your connection.");
+    }
+
+    // Handle server errors
+    if (error.response?.status && error.response.status >= 500) {
+      console.error(
+        "Server error:",
+        error.response.status,
+        error.response.data
+      );
     }
 
     return Promise.reject(error);
