@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 import { cookieStore } from "@/utils/cookie";
-import { localStorageStore } from "@/utils/local-storage";
 
 interface AuthStore {
   user: User | null;
@@ -33,7 +32,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
       logout: () => {
-        set({ accessToken: "", refreshToken: "", user: null });
+        set({ accessToken: null, refreshToken: null, user: null });
         cookieStore.removeAccessToken();
         cookieStore.removeRefreshToken();
       },

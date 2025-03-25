@@ -24,7 +24,7 @@ export const LogoutModal = () => {
       isOpen={isOpenModal}
       onClose={onClose}
       title="Logout"
-      description="You are about to log out from your account. You will need to login again to access protected areas."
+      description="Are you sure you want to log out? You will need to login again to access protected areas."
     >
       <div className="flex items-center justify-end gap-2">
         <Button variant="outline" onClick={onClose} disabled={isPending}>
