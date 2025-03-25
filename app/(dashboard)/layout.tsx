@@ -5,12 +5,12 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserRole } from "@/config/enums";
 import { ProtectedRoutes } from "@/guard/protected-routes";
 
 import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
 import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
 import { DeleteUserModal } from "./(routes)/users/_components/delete-user-modal";
+import { LogoutModal } from "../(auth)/_components/logout-modal";
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
@@ -23,7 +23,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ProtectedRoutes role={UserRole.ADMIN}>
+    <ProtectedRoutes authRequired={true}>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -33,7 +33,7 @@ export default function DashboardLayout({
               <div className="flex flex-col items-end mr-2">
                 <span className="text-sm font-medium">Hozan</span>
                 <span className="text-xs text-muted-foreground">
-                  {UserRole.ADMIN}
+                  Administrator
                 </span>
               </div>
               <Avatar>
@@ -47,6 +47,7 @@ export default function DashboardLayout({
             <AddUserModal />
             <BlockUserModal />
             <DeleteUserModal />
+            <LogoutModal />
           </div>
         </SidebarInset>
       </SidebarProvider>

@@ -25,12 +25,10 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { ROUTES } from "@/config/constants";
-import { Button } from "@/components/ui/button";
-import { useLogout } from "@/services/auth/auth-hook";
+import { LogoutButton } from "@/app/(auth)/_components/logout-button";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const { mutate: logout, isPending } = useLogout();
 
   return (
     <Sidebar {...props}>
@@ -109,15 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter className="bg-primary text-primary-foreground border-t border-[#ADAEB538] mt-auto">
-        <Button
-          variant="ghost"
-          className="justify-start w-full"
-          onClick={() => logout()}
-          disabled={isPending}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Log out
-        </Button>
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );

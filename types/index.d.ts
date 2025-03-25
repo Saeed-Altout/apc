@@ -4,7 +4,7 @@ declare type IAxiosResponse<T> = {
 };
 
 declare type AccessToken = string;
-
+declare type RefreshToken = string;
 declare type User = {
   id: string;
   name: string;

@@ -24,6 +24,8 @@ export const useLogout = () => {
   return useMutation({
     mutationKey: ["logout"],
     mutationFn: () => AuthService.logout(),
-    onSuccess: () => logout(),
+    onSuccess: () => {
+      logout();
+    },
   });
 };

@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { ProtectedRoutes } from "@/guard/protected-routes";
-import { UserRole } from "@/config/enums";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <ProtectedRoutes role={UserRole.GUEST}>
+    <ProtectedRoutes authRequired={false}>
       <div className="min-h-screen bg-white flex flex-col">
         <div className="fixed bottom-0 w-full">
           <svg

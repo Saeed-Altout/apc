@@ -2,38 +2,38 @@
 import * as React from "react";
 
 import { useAuthStore } from "@/services/auth/auth-store";
-import { UserRole } from "@/config/enums";
 import { useRouter } from "next/navigation";
 
 interface ProtectedRoutesProps {
-  role: UserRole;
+  authRequired?: boolean;
   children: React.ReactNode;
 }
 
-export const ProtectedRoutes = ({ role, children }: ProtectedRoutesProps) => {
+export const ProtectedRoutes = ({
+  authRequired = true,
+  children,
+}: ProtectedRoutesProps) => {
   const [isMounted, setIsMounted] = React.useState<boolean>(false);
   const { accessToken } = useAuthStore();
   const router = useRouter();
 
-  if (role === UserRole.GUEST && accessToken) {
-    router.push("/");
-    return null;
-  }
-
-  if (role === UserRole.ADMIN && !accessToken) {
-    router.push("/login");
-    return null;
-  }
-
-  if (role !== UserRole.ADMIN && role !== UserRole.GUEST) {
-    router.push("/not-allow");
-    return null;
-  }
-
   React.useEffect(() => {
     setIsMounted(true);
+
+    // Handle redirects in useEffect to avoid React hooks errors
+    if (!authRequired && accessToken) {
+      router.push("/");
+    } else if (authRequired && !accessToken) {
+      router.push("/login");
+    }
+
     return () => setIsMounted(false);
-  }, []);
+  }, [authRequired, accessToken, router]);
+
+  // Need to check conditions again as the effect runs after render
+  if ((!authRequired && accessToken) || (authRequired && !accessToken)) {
+    return null;
+  }
 
   return isMounted ? children : null;
 };

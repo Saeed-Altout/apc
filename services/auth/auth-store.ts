@@ -7,10 +7,11 @@ import { localStorageStore } from "@/utils/local-storage";
 interface AuthStore {
   user: User | null;
   accessToken: AccessToken | null;
+  refreshToken: RefreshToken | null;
 
   setUser: (user: User | null) => void;
   logout: () => void;
-  login: (accessToken: string) => void;
+  login: (accessToken: string, refreshToken?: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -18,19 +19,23 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
 
       setUser: (user) => set({ user }),
-      login: (accessToken) => {
+      login: (accessToken, refreshToken) => {
         if (accessToken) {
           set({ accessToken });
-          localStorageStore.setAccessToken(accessToken);
           cookieStore.setAccessToken(accessToken);
+        }
+        if (refreshToken) {
+          set({ refreshToken });
+          cookieStore.setRefreshToken(refreshToken);
         }
       },
       logout: () => {
-        set({ accessToken: null, user: null });
-        localStorageStore.removeAccessToken();
+        set({ accessToken: "", refreshToken: "", user: null });
         cookieStore.removeAccessToken();
+        cookieStore.removeRefreshToken();
       },
     }),
     {

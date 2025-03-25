@@ -9,6 +9,7 @@ export enum ModalType {
   APPROVE_REQUEST = "APPROVE_REQUEST",
   REJECT_REQUEST = "REJECT_REQUEST",
   EXPORT_REQUEST = "EXPORT_REQUEST",
+  LOGOUT = "LOGOUT",
 }
 
 export enum UserRole {
