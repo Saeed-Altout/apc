@@ -6,7 +6,7 @@ import { cookieStore } from "@/utils/cookie";
 const defaultConfig: AxiosRequestConfig = {
   baseURL:
     process.env.NEXT_PUBLIC_API_URL || "https://apc-app.apcprime.com/api",
-  timeout: 30000, // Increased timeout for better reliability
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -15,7 +15,6 @@ const defaultConfig: AxiosRequestConfig = {
 
 export const apiClient = axios.create(defaultConfig);
 
-// Token refresh state management
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
 
@@ -38,19 +37,9 @@ const onRefreshFailure = (): void => {
   }
 };
 
-// Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Try to get token from store first, then fallback to cookie
-    let token = useAuthStore.getState().accessToken;
-
-    if (!token) {
-      token = cookieStore.getAccessToken();
-      // If token found in cookie but not in store, update store
-      if (token) {
-        useAuthStore.getState().setAccessToken(token);
-      }
-    }
+    const token = useAuthStore.getState().accessToken;
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -64,7 +53,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
@@ -78,19 +66,12 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Define endpoints that should skip the refresh token flow
-    const skipRefreshEndpoints = [
-      AuthService.REFRESH,
-      AuthService.LOGIN,
-      AuthService.LOGOUT_ACCESS,
-      AuthService.LOGOUT_REFRESH,
-    ];
+    const skipRefreshEndpoints = [AuthService.LOGIN];
 
     const isSkipEndpoint = skipRefreshEndpoints.some((endpoint) =>
       originalRequest.url?.includes(endpoint)
     );
 
-    // Handle 401 Unauthorized errors with token refresh
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&

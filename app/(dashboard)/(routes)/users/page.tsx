@@ -18,9 +18,13 @@ import {
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
 import { mockUsers } from "@/config/constants";
+import { useUsers } from "@/services/users/users-hook";
 
 export default function UsersPage() {
   const { onOpen } = useModal();
+  const { data: users, isLoading } = useUsers({ params: {} });
+
+  console.log(users);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

@@ -28,13 +28,7 @@ export const AuthService = {
 
   refresh: async (): Promise<void> => {
     try {
-      const res = await apiClient.post(
-        AuthService.REFRESH,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await apiClient.post(AuthService.REFRESH);
       return res.data;
     } catch (error) {
       throw error;

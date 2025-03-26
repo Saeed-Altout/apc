@@ -2,7 +2,7 @@
 import * as React from "react";
 
 import { useAuthStore } from "@/services/auth/auth-store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ProtectedRoutesProps {
   authRequired?: boolean;
@@ -13,27 +13,21 @@ export const ProtectedRoutes = ({
   authRequired = true,
   children,
 }: ProtectedRoutesProps) => {
-  const [isMounted, setIsMounted] = React.useState<boolean>(false);
   const { accessToken } = useAuthStore();
   const router = useRouter();
 
-  React.useEffect(() => {
-    setIsMounted(true);
+  if (!accessToken && authRequired) {
+    router.push("/login");
+  }
 
-    // Handle redirects in useEffect to avoid React hooks errors
-    if (!authRequired && accessToken) {
-      router.push("/");
-    } else if (authRequired && !accessToken) {
-      router.push("/login");
-    }
-
-    return () => setIsMounted(false);
-  }, [authRequired, accessToken, router]);
+  if (accessToken && !authRequired) {
+    router.push("/");
+  }
 
   // Need to check conditions again as the effect runs after render
   if ((!authRequired && accessToken) || (authRequired && !accessToken)) {
     return null;
   }
 
-  return isMounted ? children : null;
+  return children;
 };
