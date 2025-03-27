@@ -9,7 +9,19 @@ import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
 
 import { DataTableRowActions } from "./data-table-row-actions";
 
-export const columns: ColumnDef<IUserItem>[] = [
+type User = {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  telegram: string;
+  role: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -45,12 +57,12 @@ export const columns: ColumnDef<IUserItem>[] = [
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "fullName",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="Full Name" />
     ),
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("name")}</div>;
+      return <div className="font-medium">{row.getValue("fullName")}</div>;
     },
   },
   {
@@ -60,17 +72,6 @@ export const columns: ColumnDef<IUserItem>[] = [
     ),
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("phone")}</div>;
-    },
-  },
-  {
-    accessorKey: "accountManager",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Account Manager" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="font-medium">{row.getValue("accountManager")}</div>
-      );
     },
   },
   {
@@ -88,33 +89,12 @@ export const columns: ColumnDef<IUserItem>[] = [
     cell: ({ row }) => <div>{row.getValue("telegram")}</div>,
   },
   {
-    accessorKey: "wallets",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Wallets" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("wallets")}</div>,
-  },
-  {
-    accessorKey: "tradingAccounts",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Trading Accounts" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("tradingAccounts")}</div>,
-  },
-  {
-    accessorKey: "country",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Country" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("country")}</div>,
-  },
-  {
     accessorKey: "role",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => {
-      const role = row.getValue("role") as string;
+      const role = row.original.role;
       return <div className="capitalize">{role}</div>;
     },
     filterFn: (row, id, value) => {
@@ -127,18 +107,27 @@ export const columns: ColumnDef<IUserItem>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.original.status;
 
       return (
         <Badge
           variant={
-            status === "active"
+            status === "ACTIVE"
               ? "success"
-              : status === "blocked"
+              : status === "EXPIRED"
               ? "destructive"
-              : status === "pending"
+              : status === "INCOMPLETE"
               ? "outline"
               : "secondary"
+          }
+          className={
+            status === "ACTIVE"
+              ? "bg-green-100 text-green-800 hover:bg-green-200"
+              : status === "EXPIRED"
+              ? "bg-red-100 text-red-800 hover:bg-red-200"
+              : status === "INCOMPLETE"
+              ? "bg-yellow-100 text-yellow-800 border border-yellow-200 hover:bg-yellow-200"
+              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
           }
         >
           {status}
@@ -170,18 +159,17 @@ export const filterableColumns = [
     id: "status",
     title: "Filter",
     options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
-      { label: "Blocked", value: "blocked" },
-      { label: "Pending", value: "pending" },
+      { label: "ACTIVE", value: "ACTIVE" },
+      { label: "EXPIRED", value: "EXPIRED" },
+      { label: "INCOMPLETE", value: "INCOMPLETE" },
     ],
   },
 ];
 
 export const searchableColumns = [
   {
-    id: "name",
-    title: "Name",
+    id: "fullName",
+    title: "Full Name",
   },
 ];
 
@@ -189,10 +177,11 @@ export const defaultSort = {
   id: "createdAt",
   desc: true,
 };
+
 export const defaultVisibleColumns = [
   {
-    id: "name",
-    title: "Name",
+    id: "fullName",
+    title: "Full Name",
     visible: true,
   },
   {
@@ -201,14 +190,9 @@ export const defaultVisibleColumns = [
     visible: true,
   },
   {
-    id: "accountManager",
-    title: "Account Manager",
-    visible: true,
-  },
-  {
     id: "email",
     title: "Email",
-    visible: false,
+    visible: true,
   },
   {
     id: "role",
@@ -226,23 +210,13 @@ export const defaultVisibleColumns = [
     visible: false,
   },
   {
-    id: "wallets",
-    title: "Wallets",
-    visible: false,
-  },
-  {
-    id: "tradingAccount",
-    title: "Trading Account",
-    visible: false,
-  },
-  {
-    id: "country",
-    title: "Country",
-    visible: false,
-  },
-  {
     id: "createdAt",
     title: "Created At",
+    visible: false,
+  },
+  {
+    id: "updatedAt",
+    title: "Updated At",
     visible: false,
   },
 ];
