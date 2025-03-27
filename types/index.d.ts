@@ -4,8 +4,8 @@ declare type IAxiosResponse<T> = {
 };
 
 declare type IParams = Record<string, any>;
-declare type AccessToken = string;
-declare type RefreshToken = string;
+declare type IAccessToken = string;
+declare type IRefreshToken = string;
 declare type User = {
   id: string;
   name: string;
@@ -21,9 +21,13 @@ declare type ILoginCredentials = {
 };
 
 declare type ILoginResponse = IAxiosResponse<{
-  access_token: AccessToken;
-  refresh_token?: RefreshToken;
+  access_token: IAccessToken;
   personalInformation: null;
+}>;
+declare type IRefreshResponse = IAxiosResponse<{
+  access_token: IAccessToken;
+  personalInformation: null;
+  refresh_token: IRefreshToken;
 }>;
 
 declare type IWhatsappProviderCredentials = { token: string };
@@ -36,7 +40,40 @@ declare type IUploadIdCardResponse = IAxiosResponse<any>;
 
 declare type IUserPersonalInformationResponse = IAxiosResponse<any>;
 declare type IUserResponse = IAxiosResponse<any>;
-declare type IUsersResponse = IAxiosResponse<any>;
+declare type IRole = {
+  id: number;
+  name: string;
+  timeCreated: Date;
+  timeUpdated: Date;
+};
+declare type IUser = {
+  id: number;
+  phoneNumber: string;
+  role: IRole;
+  status: string;
+  telegramUsername: string;
+};
+
+declare type IUserItem = {
+  email: string;
+  firstname: string;
+  id: number;
+  lastname: string;
+  timeCreated: Date;
+  timeUpdated: Date;
+  user: IUser;
+};
+
+declare type IUsersResponse = IAxiosResponse<{
+  items: IUserItem[];
+  limit: number;
+  nextNum: number;
+  page: number;
+  pages: number;
+  prevNum: number;
+  total: number;
+}>;
+
 declare type IAddUserCredentials = {
   phonenumber: string;
   firstname: string;

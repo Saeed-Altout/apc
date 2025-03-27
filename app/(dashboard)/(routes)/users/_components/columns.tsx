@@ -7,10 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 
-import { User } from "@/schemas/user";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<IUserItem>[] = [
   {
     id: "select",
     header: ({ table }) => (

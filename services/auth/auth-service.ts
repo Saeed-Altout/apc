@@ -1,5 +1,7 @@
 import { apiClient } from "@/lib/api-client";
 
+import { CookieService } from "@/services/token/cookie-service";
+
 export const AuthService = {
   LOGIN: "/auth/login-admin",
   LOGOUT_ACCESS: "/auth/logout-access",
@@ -8,8 +10,11 @@ export const AuthService = {
 
   login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
     try {
-      const res = await apiClient.post<ILoginResponse>(AuthService.LOGIN, data);
-      return res.data;
+      const response = await apiClient.post<ILoginResponse>(
+        AuthService.LOGIN,
+        data
+      );
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -17,19 +22,26 @@ export const AuthService = {
 
   logout: async (): Promise<void> => {
     try {
-      await Promise.all([
-        apiClient.post(AuthService.LOGOUT_ACCESS),
-        apiClient.post(AuthService.LOGOUT_REFRESH),
-      ]);
+      await apiClient.post(AuthService.LOGOUT_ACCESS);
+      await apiClient.post(AuthService.LOGOUT_REFRESH);
     } catch (error) {
       throw error;
     }
   },
 
-  refresh: async (): Promise<void> => {
+  refresh: async (): Promise<IRefreshResponse> => {
     try {
-      const res = await apiClient.post(AuthService.REFRESH);
-      return res.data;
+      const refreshToken = CookieService.getRefreshToken();
+      const response = await apiClient.post<IRefreshResponse>(
+        AuthService.REFRESH,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
       throw error;
     }

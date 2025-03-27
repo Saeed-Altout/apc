@@ -1,7 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosRequestConfig, AxiosError } from "axios";
+
 import { AuthService } from "@/services/auth/auth-service";
-import { useAuthStore } from "@/services/auth/auth-store";
-import { cookieStore } from "@/utils/cookie";
+import { CookieService } from "@/services/token/cookie-service";
+import { StorageService } from "@/services/token/storage-service";
 
 const defaultConfig: AxiosRequestConfig = {
   baseURL:
@@ -16,55 +17,49 @@ const defaultConfig: AxiosRequestConfig = {
 export const apiClient = axios.create(defaultConfig);
 
 let isRefreshing = false;
-let refreshSubscribers: Array<(token: string) => void> = [];
+let failedQueue: {
+  resolve: (value?: unknown) => void;
+  reject: (error?: unknown) => void;
+  config: AxiosRequestConfig;
+}[] = [];
 
-const addRefreshSubscriber = (callback: (token: string) => void): void => {
-  refreshSubscribers.push(callback);
-};
-
-const processRefreshQueue = (token: string): void => {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
-};
-
-const onRefreshFailure = (): void => {
-  useAuthStore.getState().logout();
-  isRefreshing = false;
-  refreshSubscribers = [];
-
-  if (typeof window !== "undefined") {
-    window.location.href = "/login";
-  }
+const processQueue = (error: Error | null, token: string | null = null) => {
+  failedQueue.forEach((request) => {
+    if (error) {
+      request.reject(error);
+    } else {
+      if (token && request.config.headers) {
+        request.config.headers.Authorization = `Bearer ${token}`;
+      }
+      request.resolve(apiClient(request.config));
+    }
+  });
+  failedQueue = [];
 };
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().accessToken;
-
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const accessToken = StorageService.getAccessToken();
+    if (accessToken && config.headers) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
     return config;
   },
   (error) => {
-    console.error("API Request Error:", error);
     return Promise.reject(error);
   }
 );
 
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
+  (response) => response,
   async (error: AxiosError) => {
-    if (!error.config) {
-      return Promise.reject(error);
-    }
-
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };
+
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
 
     const skipRefreshEndpoints = [AuthService.LOGIN];
 
@@ -78,14 +73,8 @@ apiClient.interceptors.response.use(
       !isSkipEndpoint
     ) {
       if (isRefreshing) {
-        // If already refreshing, queue this request
-        return new Promise((resolve) => {
-          addRefreshSubscriber((token: string) => {
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-            }
-            resolve(apiClient(originalRequest));
-          });
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject, config: originalRequest });
         });
       }
 
@@ -93,41 +82,33 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await AuthService.refresh();
-        const { accessToken: newToken } = useAuthStore.getState();
+        const response = await AuthService.refresh();
+        const { access_token: newAccessToken, refresh_token: newRefreshToken } =
+          response.data;
 
-        if (newToken) {
-          useAuthStore.getState().setAccessToken(newToken);
+        StorageService.setAccessToken(newAccessToken);
+        StorageService.setRefreshToken(newRefreshToken);
 
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
-
-          processRefreshQueue(newToken);
-          isRefreshing = false;
-
-          return apiClient(originalRequest);
-        } else {
-          throw new Error("No access token received during refresh");
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
+
+        processQueue(null, newAccessToken);
+        isRefreshing = false;
+
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        onRefreshFailure();
+        processQueue(refreshError as Error);
+        isRefreshing = false;
+        StorageService.clear();
+        CookieService.clear();
+
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+
         return Promise.reject(refreshError);
       }
-    }
-
-    // Handle network errors
-    if (error.message === "Network Error") {
-      console.error("Network error detected. Please check your connection.");
-    }
-
-    // Handle server errors
-    if (error.response?.status && error.response.status >= 500) {
-      console.error(
-        "Server error:",
-        error.response.status,
-        error.response.data
-      );
     }
 
     return Promise.reject(error);

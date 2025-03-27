@@ -13,21 +13,21 @@ export const ProtectedRoutes = ({
   authRequired = true,
   children,
 }: ProtectedRoutesProps) => {
-  const { accessToken } = useAuthStore();
-  const router = useRouter();
+  // const { accessToken } = useAuthStore();
+  // const router = useRouter();
 
-  if (!accessToken && authRequired) {
-    router.push("/login");
-  }
+  // if (!accessToken && authRequired) {
+  //   router.push("/login");
+  // }
 
-  if (accessToken && !authRequired) {
-    router.push("/");
-  }
+  // if (accessToken && !authRequired) {
+  //   router.push("/");
+  // }
 
-  // Need to check conditions again as the effect runs after render
-  if ((!authRequired && accessToken) || (authRequired && !accessToken)) {
-    return null;
-  }
+  // // Need to check conditions again as the effect runs after render
+  // if ((!authRequired && accessToken) || (authRequired && !accessToken)) {
+  //   return null;
+  // }
 
   return children;
 };

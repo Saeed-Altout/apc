@@ -1,5 +1,3 @@
-import { NAME_PROJECT } from "@/config/constants";
-
 export const seoConfig = {
   defaultTitle: "APC Prime Admin Dashboard",
   titleTemplate: `%s | APC Prime Admin`,
