@@ -7,9 +7,10 @@ import { Modal } from "@/components/ui/modal";
 
 import { ModalType } from "@/config/enums";
 import { useModal } from "@/hooks/use-modal";
-import { useAuth } from "@/services/auth/auth-hook";
+import { useLogout } from "@/services/auth/auth-hook";
+
 export const LogoutModal = () => {
-  const { logout, isLoading } = useAuth();
+  const { mutateAsync: logout, isPending } = useLogout();
   const { isOpen, type, onClose } = useModal();
   const isOpenModal = isOpen && type === ModalType.LOGOUT;
 
@@ -26,16 +27,16 @@ export const LogoutModal = () => {
       description="Are you sure you want to log out? You will need to login again to access protected areas."
     >
       <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" onClick={onClose} disabled={isLoading}>
+        <Button variant="outline" onClick={onClose} disabled={isPending}>
           Cancel
         </Button>
         <Button
           variant="destructive"
           onClick={handleLogout}
-          disabled={isLoading}
+          disabled={isPending}
         >
           Logout
-          {isLoading && <Spinner variant="circle" />}
+          {isPending && <Spinner variant="circle" />}
         </Button>
       </div>
     </Modal>

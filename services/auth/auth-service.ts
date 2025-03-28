@@ -3,7 +3,8 @@ import { StorageService } from "@/services/token/storage-service";
 
 export const AuthService = {
   LOGIN: "/auth/login-admin",
-  LOGOUT: "/auth/logout",
+  LOGOUT_ACCESS: "/auth/logout-access",
+  LOGOUT_REFRESH: "/auth/logout-refresh",
   REFRESH: "/auth/refresh",
 
   login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
@@ -24,7 +25,7 @@ export const AuthService = {
 
   logout: async (): Promise<void> => {
     try {
-      return await apiClient.post(AuthService.LOGOUT);
+      await apiClient.post(AuthService.LOGOUT_ACCESS);
     } catch (error) {
       console.error("Logout API error:", error);
       return Promise.resolve();
