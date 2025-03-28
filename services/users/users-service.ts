@@ -6,6 +6,7 @@ export const UsersService = {
   GET_USER_PERSONAL_INFORMATION: "/personal-information",
   BLOCK_USER: "/block",
   UPDATE_PASSWORD: "/password",
+  EXPORT: "/export",
 
   uploadIdCard: async (
     data: IUploadIdCardCredentials
@@ -168,6 +169,18 @@ export const UsersService = {
         UsersService.ROOT + UsersService.UPDATE_PASSWORD + "/" + id,
         data
       );
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  exportUsers: async (params?: IParams): Promise<Blob> => {
+    try {
+      const res = await apiClient.get(UsersService.ROOT + UsersService.EXPORT, {
+        params,
+        responseType: "blob",
+      });
       return res.data;
     } catch (error) {
       throw error;

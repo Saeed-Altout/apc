@@ -1,7 +1,6 @@
-import axios, { AxiosRequestConfig, AxiosError } from "axios";
+import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 
 import { AuthService } from "@/services/auth/auth-service";
-import { CookieService } from "@/services/token/cookie-service";
 import { StorageService } from "@/services/token/storage-service";
 
 const defaultConfig: AxiosRequestConfig = {
@@ -10,12 +9,14 @@ const defaultConfig: AxiosRequestConfig = {
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
+    DeviceType: "admin",
   },
   withCredentials: true,
 };
 
 export const apiClient = axios.create(defaultConfig);
 
+// Token refresh state management
 let isRefreshing = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;
@@ -23,6 +24,7 @@ let failedQueue: {
   config: AxiosRequestConfig;
 }[] = [];
 
+// Process the queue of failed requests
 const processQueue = (error: Error | null, token: string | null = null) => {
   failedQueue.forEach((request) => {
     if (error) {
@@ -37,6 +39,44 @@ const processQueue = (error: Error | null, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Helper function to handle token refresh
+const refreshToken = async (): Promise<string> => {
+  if (isRefreshing) {
+    // If already refreshing, return a promise that resolves when refreshing is done
+    return new Promise((resolve, reject) => {
+      failedQueue.push({
+        resolve: (value) => resolve(value as string),
+        reject,
+        config: {} as AxiosRequestConfig,
+      });
+    });
+  }
+
+  isRefreshing = true;
+
+  try {
+    // Use our AuthService to handle the refresh
+    const response = await AuthService.refresh();
+    const { access_token: newAccessToken } = response.data;
+
+    // Process any queued requests
+    processQueue(null, newAccessToken);
+    isRefreshing = false;
+
+    return newAccessToken;
+  } catch (error) {
+    processQueue(error as Error);
+    isRefreshing = false;
+
+    // Clear tokens on refresh failure
+    StorageService.clear();
+
+    // Redirect handled by the calling function
+    throw error;
+  }
+};
+
+// Request interceptor - Add auth token to all requests
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = StorageService.getAccessToken();
@@ -50,8 +90,9 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Response interceptor - Handle 401 errors with token refresh
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
@@ -61,52 +102,33 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const skipRefreshEndpoints = [AuthService.LOGIN];
-
-    const isSkipEndpoint = skipRefreshEndpoints.some((endpoint) =>
-      originalRequest.url?.includes(endpoint)
+    // Don't retry refresh token endpoint failures
+    const isRefreshEndpoint = originalRequest.url?.includes(
+      AuthService.REFRESH
     );
 
+    // Handle 401 errors (Unauthorized)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !isSkipEndpoint
+      !isRefreshEndpoint
     ) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject, config: originalRequest });
-        });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        const response = await AuthService.refresh();
-        const { access_token: newAccessToken, refresh_token: newRefreshToken } =
-          response.data;
+        // Get a new token
+        const newToken = await refreshToken();
 
-        StorageService.setAccessToken(newAccessToken);
-        StorageService.setRefreshToken(newRefreshToken);
-
+        // Update the failed request with new token
         if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
 
-        processQueue(null, newAccessToken);
-        isRefreshing = false;
-
+        // Retry the request
         return apiClient(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError as Error);
-        isRefreshing = false;
-        StorageService.clear();
-        CookieService.clear();
-
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-
+        // If refresh fails, the token clearing is handled in refreshToken function
+        // Redirection will be handled by React components or auth hooks
         return Promise.reject(refreshError);
       }
     }

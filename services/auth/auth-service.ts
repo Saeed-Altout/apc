@@ -1,11 +1,9 @@
 import { apiClient } from "@/lib/api-client";
-
-import { CookieService } from "@/services/token/cookie-service";
+import { StorageService } from "@/services/token/storage-service";
 
 export const AuthService = {
   LOGIN: "/auth/login-admin",
-  LOGOUT_ACCESS: "/auth/logout-access",
-  LOGOUT_REFRESH: "/auth/logout-refresh",
+  LOGOUT: "/auth/logout",
   REFRESH: "/auth/refresh",
 
   login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
@@ -14,6 +12,10 @@ export const AuthService = {
         AuthService.LOGIN,
         data
       );
+
+      const { access_token, refresh_token } = response.data.data;
+      StorageService.setTokens(access_token, refresh_token);
+
       return response.data;
     } catch (error) {
       throw error;
@@ -22,16 +24,21 @@ export const AuthService = {
 
   logout: async (): Promise<void> => {
     try {
-      await apiClient.post(AuthService.LOGOUT_ACCESS);
-      await apiClient.post(AuthService.LOGOUT_REFRESH);
+      return await apiClient.post(AuthService.LOGOUT);
     } catch (error) {
-      throw error;
+      console.error("Logout API error:", error);
+      return Promise.resolve();
     }
   },
 
   refresh: async (): Promise<IRefreshResponse> => {
     try {
-      const refreshToken = CookieService.getRefreshToken();
+      const refreshToken = StorageService.getRefreshToken();
+
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
       const response = await apiClient.post<IRefreshResponse>(
         AuthService.REFRESH,
         {},
@@ -41,9 +48,17 @@ export const AuthService = {
           },
         }
       );
+
+      const { access_token, refresh_token } = response.data.data;
+      StorageService.setTokens(access_token, refresh_token);
+
       return response.data;
     } catch (error) {
       throw error;
     }
+  },
+
+  isAuthenticated: (): boolean => {
+    return StorageService.isAuthenticated();
   },
 };

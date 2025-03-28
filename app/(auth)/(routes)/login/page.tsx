@@ -2,7 +2,7 @@
 import * as React from "react";
 
 import { PhoneInput } from "react-international-phone";
-import { Eye, EarOff, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 import { WrapperCard } from "../../_components/wrapper-card";
-import { useLogin } from "@/services/auth/auth-hook";
+import { useAuth } from "@/services/auth/auth-hook";
 
 const loginFormSchema = z.object({
   email: z.string().describe("Email"),
@@ -44,7 +44,7 @@ export default function LoginPage() {
   const [isPassword, setIsPassword] = React.useState<"password" | "text">(
     "password"
   );
-  const { mutate: login, isPending } = useLogin();
+  const { login, isLoading, error } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -57,9 +57,9 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
-    login({
-      phoneNumber: values.phoneNumber,
-      email: values.email,
+    await login({
+      phoneNumber: values.phoneNumber || null,
+      email: values.email || null,
       password: values.password,
     });
   };
@@ -79,6 +79,12 @@ export default function LoginPage() {
         title="Admin Login"
         description="Enter your credentials to continue."
       >
+        {error && (
+          <div className="p-3 mb-4 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Tabs defaultValue="phoneNumber" className="space-y-2">
@@ -101,7 +107,7 @@ export default function LoginPage() {
                         <PhoneInput
                           className="react-international-phone-input-container"
                           defaultCountry="ae"
-                          disabled={isPending}
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -121,7 +127,7 @@ export default function LoginPage() {
                         <Input
                           type="email"
                           placeholder="example@gmail.com"
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="mb-2"
                           {...field}
                         />
@@ -142,7 +148,7 @@ export default function LoginPage() {
                     <div className="relative">
                       <Input
                         type={isPassword}
-                        disabled={isPending}
+                        disabled={isLoading}
                         className="pr-12"
                         placeholder="*******"
                         {...field}
@@ -176,7 +182,7 @@ export default function LoginPage() {
                   <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                     <FormControl>
                       <Checkbox
-                        disabled={isPending}
+                        disabled={isLoading}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
@@ -197,10 +203,10 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isLoading}
               className="w-full bg-[#0f766d] hover:bg-[#0f766d]/90 text-white"
             >
-              Log in {isPending && <Spinner variant="circle" />}
+              Log in {isLoading && <Spinner variant="circle" />}
             </Button>
           </form>
         </Form>
