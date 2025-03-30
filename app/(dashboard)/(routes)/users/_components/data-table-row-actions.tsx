@@ -15,7 +15,7 @@ import {
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { User } from "@/schemas/user";
+import { User } from "./columns";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

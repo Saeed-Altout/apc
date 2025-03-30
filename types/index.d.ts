@@ -110,3 +110,9 @@ declare type IUpdateUserPasswordCredentials = {
   currentPassword?: string;
   newPassword: string;
 };
+declare type IDeleteMultipleUsersCredentials = {
+  usersIds: number[];
+};
+declare type IBlockMultipleUsersCredentials = {
+  usersIds: number[];
+};

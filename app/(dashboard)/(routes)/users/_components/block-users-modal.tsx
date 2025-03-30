@@ -7,24 +7,28 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useBlockUser } from "@/services/users/users-hook";
+import { useBlockMultipleUsers } from "@/services/users/users-hook";
 
-export const BlockUserModal = () => {
+export const BlockUsersModal = () => {
   const { isOpen, type, onClose, data } = useModal();
-  const { mutateAsync: blockUser, isPending } = useBlockUser();
+  const { mutateAsync: blockMultipleUsers, isPending } =
+    useBlockMultipleUsers();
 
-  const isModalOpen = isOpen && !!data?.user && type === ModalType.BLOCK_USER;
+  const isModalOpen =
+    isOpen && !!data?.usersIds && type === ModalType.BLOCK_MULTIPLE_USERS;
 
   const onConfirm = async () => {
-    if (data?.user?.id) {
-      await blockUser(String(data?.user.id));
+    if (data?.usersIds) {
+      await blockMultipleUsers({
+        usersIds: data?.usersIds,
+      });
     }
   };
 
   return (
     <Modal
-      title="Block User"
-      description="Are you sure you want to block this user?"
+      title="Block Users"
+      description="Are you sure you want to block these users?"
       isOpen={isModalOpen}
       onClose={onClose}
     >

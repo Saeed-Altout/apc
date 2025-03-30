@@ -7,24 +7,27 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useBlockUser } from "@/services/users/users-hook";
+import { useDeleteMultipleUsers } from "@/services/users/users-hook";
 
-export const BlockUserModal = () => {
+export const DeleteUsersModal = () => {
   const { isOpen, type, onClose, data } = useModal();
-  const { mutateAsync: blockUser, isPending } = useBlockUser();
+  const { mutateAsync: deleteUsers, isPending } = useDeleteMultipleUsers();
 
-  const isModalOpen = isOpen && !!data?.user && type === ModalType.BLOCK_USER;
+  const isModalOpen =
+    isOpen && !!data?.usersIds && type === ModalType.DELETE_MULTIPLE_USERS;
 
   const onConfirm = async () => {
-    if (data?.user?.id) {
-      await blockUser(String(data?.user.id));
+    if (data?.usersIds) {
+      await deleteUsers({
+        usersIds: data.usersIds,
+      });
     }
   };
 
   return (
     <Modal
-      title="Block User"
-      description="Are you sure you want to block this user?"
+      title="Delete Users"
+      description="Are you sure you want to delete these users? This action cannot be undone."
       isOpen={isModalOpen}
       onClose={onClose}
     >
@@ -33,7 +36,7 @@ export const BlockUserModal = () => {
           Cancel
         </Button>
         <Button disabled={isPending} variant="destructive" onClick={onConfirm}>
-          Confirm {isPending && <Spinner variant="circle" />}
+          Delete {isPending && <Spinner variant="circle" />}
         </Button>
       </div>
     </Modal>

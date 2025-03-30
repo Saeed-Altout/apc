@@ -1,37 +1,24 @@
 "use client";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { useDeleteUser } from "@/services/users/users-hook";
 
 export const DeleteUserModal = () => {
   const { isOpen, type, onClose, data } = useModal();
-  const [loading, setLoading] = React.useState(false);
+  const { mutateAsync: deleteUser, isPending } = useDeleteUser();
 
-  const isModalOpen = isOpen && type === ModalType.DELETE_USER;
-  const user = data?.user;
+  const isModalOpen =
+    isOpen && !!data?.user?.id && type === ModalType.DELETE_USER;
 
   const onConfirm = async () => {
-    try {
-      setLoading(true);
-
-      // In a real application, you would make an API call here
-      // await axios.delete(`/api/users/${user?.id}`);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast.success("User deleted successfully!");
-      onClose();
-    } catch (error) {
-      toast.error("Something went wrong!");
-      console.error(error);
-    } finally {
-      setLoading(false);
+    if (data?.user?.id) {
+      await deleteUser(String(data.user.id));
     }
   };
 
@@ -43,11 +30,11 @@ export const DeleteUserModal = () => {
       onClose={onClose}
     >
       <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-        <Button disabled={loading} variant="outline" onClick={onClose}>
+        <Button disabled={isPending} variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={loading} variant="destructive" onClick={onConfirm}>
-          {loading ? "Loading..." : "Delete"}
+        <Button disabled={isPending} variant="destructive" onClick={onConfirm}>
+          Delete {isPending && <Spinner variant="circle" />}
         </Button>
       </div>
     </Modal>

@@ -55,23 +55,7 @@ export const UsersService = {
 
   addUser: async (data: IAddUserCredentials): Promise<IUserResponse> => {
     try {
-      const formData = new FormData();
-      formData.append("phonenumber", data.phonenumber);
-      formData.append("firstname", data.firstname);
-      formData.append("lastname", data.lastname);
-      formData.append("email", data.email);
-      formData.append("roleId", data.roleId);
-      formData.append("addressLine", data.addressLine);
-      formData.append("city", data.city);
-      formData.append("country", data.country);
-      formData.append("state", data.state);
-
-      if (data.avatar) formData.append("avatar", data.avatar);
-      if (data.idCardFace) formData.append("idCardFace", data.idCardFace);
-      if (data.idCardBack) formData.append("idCardBack", data.idCardBack);
-      if (data.addressProof) formData.append("addressProof", data.addressProof);
-
-      const res = await apiClient.post(UsersService.ROOT, formData, {
+      const res = await apiClient.post(UsersService.ROOT + "/admin", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -117,44 +101,41 @@ export const UsersService = {
     }
   },
 
-  deleteUser: async (id: string): Promise<IUserResponse> => {
+  deleteUser: async (id: string): Promise<void> => {
     try {
-      const res = await apiClient.delete(UsersService.ROOT + "/" + id);
-      return res.data;
+      await apiClient.delete(UsersService.ROOT + "/admin/" + id);
     } catch (error) {
       throw error;
     }
   },
 
-  deleteMultipleUsers: async (userIds: string[]): Promise<IUserResponse> => {
+  blockUser: async (id: string): Promise<void> => {
     try {
-      const res = await apiClient.delete(UsersService.ROOT, {
-        data: { userIds },
+      await apiClient.patch(UsersService.ROOT + "/admin/" + id);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteMultipleUsers: async (
+    data: IDeleteMultipleUsersCredentials
+  ): Promise<void> => {
+    try {
+      await apiClient.delete(UsersService.ROOT + "/admin/delete", {
+        data,
       });
-      return res.data;
     } catch (error) {
       throw error;
     }
   },
 
-  blockUser: async (id: string): Promise<IAxiosResponse<any>> => {
+  blockMultipleUsers: async (
+    data: IBlockMultipleUsersCredentials
+  ): Promise<void> => {
     try {
-      const res = await apiClient.patch(
-        UsersService.ROOT + UsersService.BLOCK_USER + "/" + id
-      );
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  blockMultipleUsers: async (userIds: string[]): Promise<IUserResponse> => {
-    try {
-      const res = await apiClient.patch(
-        UsersService.ROOT + UsersService.BLOCK_USER,
-        { userIds }
-      );
-      return res.data;
+      await apiClient.patch(UsersService.ROOT + "/admin/ban", {
+        data,
+      });
     } catch (error) {
       throw error;
     }

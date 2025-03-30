@@ -10,6 +10,8 @@ import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
 import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
 import { DeleteUserModal } from "./(routes)/users/_components/delete-user-modal";
 import { LogoutModal } from "../(auth)/_components/logout-modal";
+import { BlockUsersModal } from "./(routes)/users/_components/block-users-modal";
+import { DeleteUsersModal } from "./(routes)/users/_components/delete-users-modal";
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
@@ -46,6 +48,8 @@ export default function DashboardLayout({
           <BlockUserModal />
           <DeleteUserModal />
           <LogoutModal />
+          <DeleteUsersModal />
+          <BlockUsersModal />
         </div>
       </SidebarInset>
     </SidebarProvider>

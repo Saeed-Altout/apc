@@ -1,16 +1,18 @@
 import { create } from "zustand";
 import { ModalType } from "@/config/enums";
-import { User } from "@/schemas/user";
-import { Request } from "@/schemas/request";
+import { User } from "@/app/(dashboard)/(routes)/users/_components/columns";
 
 interface ModalStore {
   type: ModalType | null;
   isOpen: boolean;
   data?: {
     user?: User;
-    request?: Request;
+    usersIds?: number[];
   };
-  onOpen: (type: ModalType, data?: { user?: User; request?: Request }) => void;
+  onOpen: (
+    type: ModalType,
+    data?: { user?: User; usersIds?: number[] }
+  ) => void;
   onClose: () => void;
 }
 

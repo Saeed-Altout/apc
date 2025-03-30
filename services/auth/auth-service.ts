@@ -1,3 +1,4 @@
+import axios from "axios";
 import { apiClient } from "@/lib/api-client";
 import { StorageService } from "@/services/token/storage-service";
 
@@ -40,15 +41,13 @@ export const AuthService = {
         throw new Error("No refresh token available");
       }
 
-      const response = await apiClient.post<IRefreshResponse>(
-        AuthService.REFRESH,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        }
-      );
+      const response = await axios.request<IRefreshResponse>({
+        method: "POST",
+        url: process.env.NEXT_PUBLIC_API_URL + AuthService.REFRESH,
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
 
       const { access_token, refresh_token } = response.data.data;
       StorageService.setTokens(access_token, refresh_token);

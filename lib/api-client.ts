@@ -36,32 +36,23 @@ const processQueue = (error: Error | null, token: string | null = null) => {
   failedQueue = [];
 };
 
-const refreshToken = async (): Promise<string> => {
-  if (isRefreshing) {
-    return new Promise((resolve, reject) => {
-      failedQueue.push({
-        resolve: (value) => resolve(value as string),
-        reject,
-        config: {} as AxiosRequestConfig,
-      });
-    });
-  }
-
-  isRefreshing = true;
-
+const refreshToken = async (): Promise<string | null> => {
   try {
     const response = await AuthService.refresh();
-    const { access_token: newAccessToken } = response.data;
 
-    processQueue(null, newAccessToken);
-    isRefreshing = false;
+    const { access_token: newAccessToken, refresh_token: newRefreshToken } =
+      response.data;
+
+    // Store the new tokens
+    StorageService.setAccessToken(newAccessToken);
+    if (newRefreshToken) {
+      StorageService.setRefreshToken(newRefreshToken);
+    }
 
     return newAccessToken;
   } catch (error) {
-    processQueue(error as Error);
-    isRefreshing = false;
-    StorageService.clear();
-    throw error;
+    console.error("Token refresh failed:", error);
+    return null;
   }
 };
 
@@ -93,6 +84,7 @@ apiClient.interceptors.response.use(
       AuthService.REFRESH
     );
 
+    // Check if the error is due to an expired token (401) and not already retrying
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -100,15 +92,55 @@ apiClient.interceptors.response.use(
     ) {
       originalRequest._retry = true;
 
+      if (isRefreshing) {
+        // If a refresh is already in progress, add this request to the queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve,
+            reject,
+            config: originalRequest,
+          });
+        });
+      }
+
+      isRefreshing = true;
+
       try {
         const newToken = await refreshToken();
 
+        if (!newToken) {
+          // If refresh failed, clear tokens and redirect to login
+          StorageService.clear();
+          isRefreshing = false;
+          processQueue(new Error("Token refresh failed"), null);
+
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+
+          return Promise.reject(new Error("Authentication failed"));
+        }
+
+        // Update the authorization header with the new token
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
 
+        // Process any requests that were queued during the refresh
+        processQueue(null, newToken);
+
+        isRefreshing = false;
         return apiClient(originalRequest);
       } catch (refreshError) {
+        isRefreshing = false;
+        StorageService.clear();
+        processQueue(refreshError as Error, null);
+
+        // Only redirect if in browser environment
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+
         return Promise.reject(refreshError);
       }
     }

@@ -1,31 +1,11 @@
 "use client";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Download, Plus } from "lucide-react";
 import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/app/(dashboard)/(routes)/users/_components/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 import {
   columns,
@@ -35,8 +15,6 @@ import {
   defaultVisibleColumns,
 } from "./_components/columns";
 
-import { useModal } from "@/hooks/use-modal";
-import { ModalType } from "@/config/enums";
 import { useUsers } from "@/services/users/users-hook";
 
 export default function UsersPage() {

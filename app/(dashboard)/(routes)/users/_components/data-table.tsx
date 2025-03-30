@@ -22,8 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DataTablePagination } from "@/components/ui/data-table-pagination";
-import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
+import { DataTablePagination } from "@/app/(dashboard)/(routes)/users/_components/data-table-pagination";
+import { DataTableToolbar } from "@/app/(dashboard)/(routes)/users/_components/data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,7 +44,6 @@ interface DataTableProps<TData, TValue> {
     id: string;
     desc: boolean;
   };
-  actions?: React.ReactNode;
   defaultVisibleColumns?: {
     id: string;
     title: string;
@@ -58,7 +57,6 @@ export function DataTable<TData, TValue>({
   filterableColumns = [],
   searchableColumns = [],
   defaultSort,
-  actions,
   defaultVisibleColumns = [],
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
@@ -104,7 +102,6 @@ export function DataTable<TData, TValue>({
         table={table}
         filterableColumns={filterableColumns}
         searchableColumns={searchableColumns}
-        actions={actions}
       />
       <div className="rounded-md border">
         <Table>

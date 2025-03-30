@@ -6,7 +6,7 @@ import { AlertCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { DataTableColumnHeader } from "@/app/(dashboard)/(routes)/users/_components/data-table-column-header";
 import {
   Tooltip,
   TooltipContent,
