@@ -15,13 +15,16 @@ import { DocumentsTab } from "./_components/documents-tab";
 import { SettingsTab } from "./_components/settings-tab";
 import { DevicesTab } from "./_components/devices-tab";
 import { useDeleteUser, useGetUserById } from "@/services/users/users-hook";
+import { EUserStatus } from "@/enums/user-status";
 
 export default function EditUserPage() {
   const { id: userId } = useParams();
   const { mutateAsync: deleteUser } = useDeleteUser();
   const { data: user, isLoading, isSuccess } = useGetUserById(String(userId));
   const router = useRouter();
-  const [isActive, setIsActive] = React.useState<boolean>(true);
+  const [isActive, setIsActive] = React.useState<boolean>(
+    user?.data.user.status === EUserStatus.ACTIVE
+  );
 
   const handleBack = () => {
     router.back();
@@ -49,6 +52,7 @@ export default function EditUserPage() {
     return <div>User not found</div>;
   }
 
+  console.log(user);
   return (
     <div className="p-6">
       <div className="mb-8 flex items-center justify-between">
@@ -56,7 +60,12 @@ export default function EditUserPage() {
           <Button variant="outline" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-semibold">Edit User</h1>
+          <h1 className="text-xl font-semibold">
+            Edit User{" "}
+            <Badge variant="outline" className="ml-2">
+              {user.data.user.status}
+            </Badge>
+          </h1>
         </div>
 
         <div className="flex items-center gap-x-2">
@@ -99,7 +108,7 @@ export default function EditUserPage() {
 
         <div className="mt-6">
           <TabsContent value="profile">
-            <ProfileTab />
+            <ProfileTab user={user.data} />
           </TabsContent>
 
           <TabsContent value="devices">

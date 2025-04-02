@@ -4,6 +4,12 @@ export const NAME_PROJECT = "Apc Prime";
 export const MAX_AGE_ACCESS_TOKEN = 30 * 24 * 60 * 60;
 export const MAX_AGE_REFRESH_TOKEN = 30 * 24 * 60 * 60;
 
+export const ROLES = [
+  { id: "1", name: "Admin" },
+  { id: "2", name: "User" },
+  { id: "3", name: "Manager" },
+  { id: "4", name: "Guest" },
+];
 export const ROUTES = [
   {
     title: "Home",

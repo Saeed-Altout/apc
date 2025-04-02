@@ -2,7 +2,7 @@
 import * as React from "react";
 import Image from "next/image";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ImagePlus } from "lucide-react";
 import { PhoneInput } from "react-international-phone";
 
@@ -36,8 +36,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-import { useAddUserMutation } from "@/services/users/users-hook";
-import { cn } from "@/lib/utils";
+import { ROLES } from "@/config/constants";
+import { useUpdateUserMutation } from "@/services/users/users-hook";
+import { cn, getImageUrl, getRoleId, getRoleName } from "@/lib/utils";
 
 export const FormSchema = z.object({
   firstname: z
@@ -59,41 +60,50 @@ export const FormSchema = z.object({
     .string()
     .min(2, { message: "Country must be at least 2 characters" }),
   state: z.string().min(2, { message: "State must be at least 2 characters" }),
-  avatar: z.instanceof(File).nullable(),
-  idCardFace: z.instanceof(File).nullable(),
-  idCardBack: z.instanceof(File).nullable(),
-  addressProof: z.instanceof(File).nullable(),
+  avatar: z.any().nullable(),
+  idCardFace: z.any().nullable(),
+  idCardBack: z.any().nullable(),
+  addressProof: z.any().nullable(),
 });
 
-export function ProfileTab() {
+export function ProfileTab({ user }: { user: IUserObject }) {
   const { id: userId } = useParams();
-  const { mutateAsync: addUser, isPending } = useAddUserMutation();
+  const router = useRouter();
+  const { mutateAsync: updateUser, isPending } = useUpdateUserMutation({
+    id: String(userId),
+  });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      firstname: "",
-      lastname: "",
-      state: "",
-      country: "",
-      city: "",
-      addressLine: "",
-      email: "",
-      phonenumber: "",
-      roleId: "",
-      avatar: null,
-      idCardFace: null,
-      idCardBack: null,
-      addressProof: null,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      state: user.user.address.state,
+      country: user.user.address.country,
+      city: user.user.address.city,
+      addressLine: user.user.address.addressLine,
+      email: user.email,
+      phonenumber: user.user.phoneNumber,
+      roleId: getRoleId(user.user.role),
+      avatar: user.avatar,
+      idCardFace: user.user.idCardFace.link,
+      idCardBack: user.user.idCardBack.link,
+      addressProof: user.user.address.addressProof.link,
     },
   });
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
-    if (userId === "new") {
-      await addUser(values);
-    } else {
-      await addUser(values);
-    }
+    const formData = {
+      ...values,
+      roleId: getRoleId(values.roleId),
+      ...(userId !== "new" && { id: userId }),
+    };
+
+    try {
+      await updateUser(formData);
+      form.reset();
+      router.push("/users");
+    } catch (error) {}
   }
 
   return (
@@ -108,7 +118,7 @@ export function ProfileTab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-2 grid !grid-cols-4 gap-4">
+              <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <FormField
                   control={form.control}
                   name="avatar"
@@ -120,11 +130,13 @@ export function ProfileTab() {
                           value && "!border-none"
                         )}
                       >
-                        {value ? (
+                        {value && getImageUrl(value) ? (
                           <Image
-                            src={URL.createObjectURL(value)}
+                            src={getImageUrl(value)}
                             alt="image"
                             fill
+                            priority
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             className="object-cover w-full h-full"
                           />
                         ) : (
@@ -162,11 +174,12 @@ export function ProfileTab() {
                           value && "!border-none"
                         )}
                       >
-                        {value ? (
+                        {value && getImageUrl(value) ? (
                           <Image
-                            src={URL.createObjectURL(value)}
+                            src={getImageUrl(value)}
                             alt="image"
                             fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             className="object-cover w-full h-full"
                           />
                         ) : (
@@ -179,7 +192,7 @@ export function ProfileTab() {
                       <FormControl>
                         <Input
                           type="file"
-                          accept="image/*,application/pdf"
+                          accept="image/*"
                           disabled={isPending}
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
@@ -204,11 +217,12 @@ export function ProfileTab() {
                           value && "!border-none"
                         )}
                       >
-                        {value ? (
+                        {value && getImageUrl(value) ? (
                           <Image
-                            src={URL.createObjectURL(value)}
+                            src={getImageUrl(value)}
                             alt="image"
                             fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             className="object-cover w-full h-full"
                           />
                         ) : (
@@ -221,7 +235,7 @@ export function ProfileTab() {
                       <FormControl>
                         <Input
                           type="file"
-                          accept="image/*,application/pdf"
+                          accept="image/*"
                           disabled={isPending}
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
@@ -246,11 +260,12 @@ export function ProfileTab() {
                           value && "!border-none"
                         )}
                       >
-                        {value ? (
+                        {value && getImageUrl(value) ? (
                           <Image
-                            src={URL.createObjectURL(value)}
+                            src={getImageUrl(value)}
                             alt="image"
                             fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             className="object-cover w-full h-full"
                           />
                         ) : (
@@ -263,7 +278,7 @@ export function ProfileTab() {
                       <FormControl>
                         <Input
                           type="file"
-                          accept="image/*,application/pdf"
+                          accept="image/*"
                           disabled={isPending}
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
@@ -278,7 +293,6 @@ export function ProfileTab() {
                   )}
                 />
               </div>
-
               <FormField
                 control={form.control}
                 name="firstname"
@@ -433,14 +447,19 @@ export function ProfileTab() {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a role" />
+                          <SelectValue placeholder="Select a role">
+                            {field.value
+                              ? getRoleName(field.value)
+                              : "Select a role"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1">Admin</SelectItem>
-                        <SelectItem value="2">User</SelectItem>
-                        <SelectItem value="3">Manager</SelectItem>
-                        <SelectItem value="4">Guest</SelectItem>
+                        {ROLES.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

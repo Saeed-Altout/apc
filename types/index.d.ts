@@ -41,7 +41,78 @@ declare type IUploadIdCardCredentials = {
 declare type IUploadIdCardResponse = IAxiosResponse<any>;
 
 declare type IUserPersonalInformationResponse = IAxiosResponse<any>;
-declare type IUserResponse = IAxiosResponse<any>;
+
+declare type IPermissionResponse = {
+  boolValue: boolean;
+  permission: {
+    action: string;
+    entityType: {
+      id: number;
+      name: string;
+    };
+    id: number;
+  };
+};
+declare type IUserObject = {
+  avatar: string;
+  email: string;
+  firstname: string;
+  id: number;
+  lastname: string;
+  timeCreated: string;
+  timeUpdated: string;
+  user: {
+    id: number;
+    inactiveReason: string;
+    phoneNumber: string;
+    status: string;
+    telegramUsername: string;
+    accountManager: {
+      avatar: string;
+      id: number;
+      name: string;
+      phoneNumber: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    address: {
+      addressLine: string;
+      addressProof: {
+        id: number;
+        link: string;
+        timeCreated: string;
+        timeUpdated: string;
+      };
+      city: string;
+      country: string;
+      id: number;
+      state: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    idCardBack: {
+      id: number;
+      link: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    idCardFace: {
+      id: number;
+      link: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    role: {
+      id: number;
+      name: string;
+      permissions: IPermissionResponse[];
+      timeCreated: string;
+      timeUpdated: string;
+    };
+  };
+};
+
+declare type IUserResponse = IAxiosResponse<IUserObject>;
 declare type IRole = {
   id: number;
   name: string;

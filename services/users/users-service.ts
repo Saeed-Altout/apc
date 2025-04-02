@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api-client";
 
 export const UsersService = {
+  EDIT_USER: "/users/admin/",
+  ADD_USER: "/users/admin/",
   ROOT: "/users",
   UPLOAD_ID_CARD: "/upload/id-cards",
   GET_USER_PERSONAL_INFORMATION: "/personal-information",
@@ -72,7 +74,7 @@ export const UsersService = {
       if (data.idCardBack) formData.append("idCardBack", data.idCardBack);
       if (data.addressProof) formData.append("addressProof", data.addressProof);
 
-      const res = await apiClient.post(UsersService.ROOT + "/admin", data, {
+      const res = await apiClient.post(UsersService.ADD_USER, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -91,22 +93,22 @@ export const UsersService = {
     try {
       const formData = new FormData();
 
-      if (data.phonenumber) formData.append("phonenumber", data.phonenumber);
-      if (data.firstname) formData.append("firstname", data.firstname);
-      if (data.lastname) formData.append("lastname", data.lastname);
-      if (data.email) formData.append("email", data.email);
-      if (data.roleId) formData.append("roleId", data.roleId);
-      if (data.addressLine) formData.append("addressLine", data.addressLine);
-      if (data.city) formData.append("city", data.city);
-      if (data.country) formData.append("country", data.country);
-      if (data.state) formData.append("state", data.state);
+      formData.append("phonenumber", data.phonenumber);
+      formData.append("firstname", data.firstname);
+      formData.append("lastname", data.lastname);
+      formData.append("email", data.email);
+      formData.append("roleId", data.roleId);
+      formData.append("addressLine", data.addressLine);
+      formData.append("city", data.city);
+      formData.append("country", data.country);
+      formData.append("state", data.state);
 
       if (data.avatar) formData.append("avatar", data.avatar);
       if (data.idCardFace) formData.append("idCardFace", data.idCardFace);
       if (data.idCardBack) formData.append("idCardBack", data.idCardBack);
       if (data.addressProof) formData.append("addressProof", data.addressProof);
 
-      const res = await apiClient.put(UsersService.ROOT + "/" + id, formData, {
+      const res = await apiClient.put(UsersService.EDIT_USER + id, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

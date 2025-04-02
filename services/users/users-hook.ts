@@ -100,6 +100,21 @@ export const useAddUserMutation = () => {
     },
   });
 };
+export const useUpdateUserMutation = ({ id }: { id: string }) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["update-user"],
+    mutationFn: (data: IUpdateUserCredentials) =>
+      UsersService.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("User updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update user");
+    },
+  });
+};
 
 export const useUsersWithStore = (initialFilters?: Partial<IUserFilter>) => {
   const store = useUsersStore();
