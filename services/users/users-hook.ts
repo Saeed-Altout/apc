@@ -6,16 +6,24 @@ import { UsersService } from "./users-service";
 import { useUsersStore, IUserFilter } from "./users-store";
 import { toast } from "sonner";
 
-export const useUsers = ({ params }: { params: IParams }) => {
+export const useGetUsersQuery = ({ params }: { params: IParams }) => {
   return useQuery({
     queryKey: ["users", params],
     queryFn: () => UsersService.getUsers({ params }),
   });
 };
 
+export const useGetUserById = (id: string) => {
+  return useQuery({
+    queryKey: ["user", id],
+    queryFn: () => UsersService.getUserById(id),
+  });
+};
+
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
   const onClose = useModal((state) => state.onClose);
+
   return useMutation({
     mutationKey: ["delete-user"],
     mutationFn: (id: string) => UsersService.deleteUser(id),
@@ -78,7 +86,7 @@ export const useBlockMultipleUsers = () => {
   });
 };
 
-export const useAddUser = () => {
+export const useAddUserMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["add-user"],

@@ -82,14 +82,14 @@ declare type IAddUserCredentials = {
   lastname: string;
   email: string;
   roleId: string;
-  avatar?: File;
-  idCardFace?: File;
-  idCardBack?: File;
   addressLine: string;
   city: string;
   country: string;
   state: string;
-  addressProof?: File;
+  avatar?: File | null;
+  idCardFace?: File | null;
+  idCardBack?: File | null;
+  addressProof?: File | null;
 };
 declare type IUpdateUserCredentials = {
   phonenumber: string;

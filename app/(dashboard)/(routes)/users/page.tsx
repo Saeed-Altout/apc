@@ -2,10 +2,11 @@
 import * as React from "react";
 import { format } from "date-fns";
 
-import { DataTable } from "@/app/(dashboard)/(routes)/users/_components/data-table";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+
+import { DataTable } from "./_components/data-table";
 
 import {
   columns,
@@ -15,10 +16,10 @@ import {
   defaultVisibleColumns,
 } from "./_components/columns";
 
-import { useUsers } from "@/services/users/users-hook";
+import { useGetUsersQuery } from "@/services/users/users-hook";
 
 export default function UsersPage() {
-  const { data: users, isLoading } = useUsers({ params: {} });
+  const { data: users, isLoading } = useGetUsersQuery({ params: {} });
 
   if (isLoading || !users) {
     return (

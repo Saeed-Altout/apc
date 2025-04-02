@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +14,12 @@ import { AccountsTab } from "./_components/accounts-tab";
 import { DocumentsTab } from "./_components/documents-tab";
 import { SettingsTab } from "./_components/settings-tab";
 import { DevicesTab } from "./_components/devices-tab";
+import { useDeleteUser, useGetUserById } from "@/services/users/users-hook";
 
 export default function EditUserPage() {
   const { id: userId } = useParams();
-
+  const { mutateAsync: deleteUser } = useDeleteUser();
+  const { data: user, isLoading, isSuccess } = useGetUserById(String(userId));
   const router = useRouter();
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
@@ -26,12 +28,10 @@ export default function EditUserPage() {
   };
 
   const handleDelete = () => {
-    // Implementation for user deletion would go here
-    console.log("Delete user:", userId);
+    deleteUser(String(userId));
   };
 
   const handleSave = () => {
-    // Implementation for saving user changes would go here
     console.log("Save user:", userId);
   };
 
@@ -41,6 +41,14 @@ export default function EditUserPage() {
     }
   }, [userId, router]);
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isSuccess) {
+    return <div>User not found</div>;
+  }
+
   return (
     <div className="p-6">
       <div className="mb-8 flex items-center justify-between">
@@ -48,7 +56,7 @@ export default function EditUserPage() {
           <Button variant="outline" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-semibold">Edit User: {userId}</h1>
+          <h1 className="text-xl font-semibold">Edit User</h1>
         </div>
 
         <div className="flex items-center gap-x-2">
@@ -65,13 +73,17 @@ export default function EditUserPage() {
               {isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
-          <Button variant="outline" size="sm" onClick={handleDelete}>
-            <Trash2 className="h-4 w-4 mr-2" />
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDelete}
+            disabled={userId === "new"}
+          >
             Delete
           </Button>
           <Button size="sm" onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
+            Save changes
           </Button>
         </div>
       </div>

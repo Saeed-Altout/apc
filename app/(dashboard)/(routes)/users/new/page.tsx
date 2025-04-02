@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-import { useParams } from "next/navigation";
 import { ImagePlus } from "lucide-react";
 import { PhoneInput } from "react-international-phone";
 
@@ -36,10 +36,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-import { useAddUserMutation } from "@/services/users/users-hook";
 import { cn } from "@/lib/utils";
+import { useAddUserMutation } from "@/services/users/users-hook";
 
-export const FormSchema = z.object({
+const FormSchema = z.object({
   firstname: z
     .string()
     .min(2, { message: "First name must be at least 2 characters" }),
@@ -65,8 +65,8 @@ export const FormSchema = z.object({
   addressProof: z.instanceof(File).nullable(),
 });
 
-export function ProfileTab() {
-  const { id: userId } = useParams();
+export default function NewUserPage() {
+  const router = useRouter();
   const { mutateAsync: addUser, isPending } = useAddUserMutation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -89,10 +89,12 @@ export function ProfileTab() {
   });
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
-    if (userId === "new") {
+    try {
       await addUser(values);
-    } else {
-      await addUser(values);
+      form.reset();
+      router.push("/users");
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -108,7 +110,7 @@ export function ProfileTab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-2 grid !grid-cols-4 gap-4">
+              <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <FormField
                   control={form.control}
                   name="avatar"
@@ -451,9 +453,12 @@ export function ProfileTab() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-x-4">
+          <Button type="button" variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
           <Button type="submit" disabled={isPending}>
-            {userId === "new" ? "Create" : "Save Changes"}
+            Create
             {isPending && <Spinner variant="circle" className="ml-2" />}
           </Button>
         </div>

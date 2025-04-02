@@ -1,4 +1,5 @@
 import { Table } from "@tanstack/react-table";
+import Link from "next/link";
 import { X, Trash2, Ban, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -49,10 +50,6 @@ export function DataTableToolbar<TData>({
       // @ts-ignore
       usersId: selectedRows.map((row) => row.id),
     });
-  };
-
-  const handleAddUser = () => {
-    onOpen(ModalType.ADD_USER);
   };
 
   return (
@@ -123,8 +120,10 @@ export function DataTableToolbar<TData>({
       )}
 
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={handleAddUser}>
-          <Plus /> Add
+        <Button size="sm" asChild>
+          <Link href="/users/new">
+            <Plus /> Add
+          </Link>
         </Button>
       </div>
     </div>

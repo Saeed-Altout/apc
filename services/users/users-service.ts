@@ -55,6 +55,23 @@ export const UsersService = {
 
   addUser: async (data: IAddUserCredentials): Promise<IUserResponse> => {
     try {
+      const formData = new FormData();
+
+      formData.append("phonenumber", data.phonenumber);
+      formData.append("firstname", data.firstname);
+      formData.append("lastname", data.lastname);
+      formData.append("email", data.email);
+      formData.append("roleId", data.roleId);
+      formData.append("addressLine", data.addressLine);
+      formData.append("city", data.city);
+      formData.append("country", data.country);
+      formData.append("state", data.state);
+
+      if (data.avatar) formData.append("avatar", data.avatar);
+      if (data.idCardFace) formData.append("idCardFace", data.idCardFace);
+      if (data.idCardBack) formData.append("idCardBack", data.idCardBack);
+      if (data.addressProof) formData.append("addressProof", data.addressProof);
+
       const res = await apiClient.post(UsersService.ROOT + "/admin", data, {
         headers: {
           "Content-Type": "multipart/form-data",

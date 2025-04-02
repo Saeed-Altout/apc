@@ -29,7 +29,7 @@ export function DataTableRowActions<TData>({
   const user = row.original as User;
 
   const handleEdit = () => {
-    router.push(`/users/${user.id}/edit`);
+    router.push(`/users/${user.id}`);
   };
 
   const handleBlock = () => {

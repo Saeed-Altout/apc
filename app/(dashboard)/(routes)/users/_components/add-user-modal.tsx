@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useAddUser } from "@/services/users/users-hook";
+import { useAddUserMutation } from "@/services/users/users-hook";
 
 export const FormSchema = z.object({
   firstname: z
@@ -60,12 +60,7 @@ export const AddUserModal = () => {
   const { isOpen, type, onClose } = useModal();
   const isModalOpen = isOpen && type === ModalType.ADD_USER;
 
-  const { mutateAsync: addUser, isPending } = useAddUser();
-
-  const [avatar, setAvatar] = React.useState<File | null>(null);
-  const [idCardFace, setIdCardFace] = React.useState<File | null>(null);
-  const [idCardBack, setIdCardBack] = React.useState<File | null>(null);
-  const [addressProof, setAddressProof] = React.useState<File | null>(null);
+  const { mutateAsync: addUser, isPending } = useAddUserMutation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -86,40 +81,14 @@ export const AddUserModal = () => {
     },
   });
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setFile: React.Dispatch<React.SetStateAction<File | null>>
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
-    const formData = new FormData();
-
-    formData.append("phonenumber", values.phonenumber);
-    formData.append("firstname", values.firstname);
-    formData.append("lastname", values.lastname);
-    formData.append("email", values.email);
-    formData.append("roleId", values.roleId);
-    formData.append("addressLine", values.addressLine);
-    formData.append("city", values.city);
-    formData.append("country", values.country);
-    formData.append("state", values.state);
-
-    if (avatar) formData.append("avatar", avatar);
-    if (idCardFace) formData.append("idCardFace", idCardFace);
-    if (idCardBack) formData.append("idCardBack", idCardBack);
-    if (addressProof) formData.append("addressProof", addressProof);
-
-    // Check if all required files are present
-    if (!avatar || !idCardFace || !idCardBack || !addressProof) {
-      toast.error("All document uploads are required");
-      return;
+    try {
+      await addUser(values);
+      form.reset();
+      onClose();
+    } catch (error) {
+      console.error("Error adding user:", error);
     }
-
-    await addUser(formData);
   };
 
   return (
@@ -133,61 +102,94 @@ export const AddUserModal = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormItem>
-                <FormLabel>User Avatar</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleFileChange(e, setAvatar)}
-                    accept="image/*"
-                    disabled={isPending}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>ID Card (Face)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleFileChange(e, setIdCardFace)}
-                    accept="image/*"
-                    disabled={isPending}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>ID Card (Back)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleFileChange(e, setIdCardBack)}
-                    accept="image/*"
-                    disabled={isPending}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>Address Proof</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleFileChange(e, setAddressProof)}
-                    accept="image/*,application/pdf"
-                    disabled={isPending}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="avatar"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>User Avatar</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={isPending}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          onChange(file);
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="idCardFace"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>ID Card (face)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={isPending}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          onChange(file);
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="idCardBack"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>ID Card (back)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={isPending}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          onChange(file);
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="addressProof"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>Address Proof</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={isPending}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          onChange(file);
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="firstname"
