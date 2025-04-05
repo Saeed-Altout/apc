@@ -166,18 +166,18 @@ declare type IAddUserCredentials = {
   addressProof?: File | null;
 };
 declare type IUpdateUserCredentials = {
-  phonenumber: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  roleId: string;
+  phonenumber?: string;
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  roleId?: string;
   avatar?: File;
   idCardFace?: File;
   idCardBack?: File;
-  addressLine: string;
-  city: string;
-  country: string;
-  state: string;
+  addressLine?: string;
+  city?: string;
+  country?: string;
+  state?: string;
   addressProof?: File;
 };
 declare type IUpdateUserPasswordCredentials = {

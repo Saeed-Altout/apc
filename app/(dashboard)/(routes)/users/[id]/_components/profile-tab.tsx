@@ -73,34 +73,90 @@ export function ProfileTab({ user }: { user: IUserObject }) {
     id: String(userId),
   });
 
+  // Store the initial form values for comparison
+  const initialValues = React.useMemo(
+    () => ({
+      firstname: user.firstname || "",
+      lastname: user.lastname || "",
+      state: user.user.address.state || "",
+      country: user.user.address.country || "",
+      city: user.user.address.city || "",
+      addressLine: user.user.address.addressLine || "",
+      email: user.email || "",
+      phonenumber: user.user.phoneNumber || "",
+      roleId: getRoleId(user.user.role) || "",
+      avatar: user.avatar || "",
+      idCardFace: user.user.idCardFace.link || "",
+      idCardBack: user.user.idCardBack.link || "",
+      addressProof: user.user.address.addressProof.link || "",
+    }),
+    [user]
+  );
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      firstname: user.firstname,
-      lastname: user.lastname,
-      state: user.user.address.state,
-      country: user.user.address.country,
-      city: user.user.address.city,
-      addressLine: user.user.address.addressLine,
-      email: user.email,
-      phonenumber: user.user.phoneNumber,
-      roleId: getRoleId(user.user.role),
-      avatar: user.avatar,
-      idCardFace: user.user.idCardFace.link,
-      idCardBack: user.user.idCardBack.link,
-      addressProof: user.user.address.addressProof.link,
-    },
+    defaultValues: initialValues,
   });
 
+  const formValues = form.watch();
+
+  React.useEffect(() => {
+    const changedFields = Object.keys(formValues).filter((key) => {
+      if (
+        ["avatar", "idCardFace", "idCardBack", "addressProof"].includes(key)
+      ) {
+        return false;
+      }
+      return (
+        formValues[key as keyof typeof formValues] !==
+        initialValues[key as keyof typeof initialValues]
+      );
+    });
+
+    if (changedFields.length > 0) {
+      const changes = changedFields.reduce((acc, key) => {
+        acc[key] = {
+          from: initialValues[key as keyof typeof initialValues],
+          to: formValues[key as keyof typeof formValues],
+        };
+        return acc;
+      }, {} as Record<string, { from: any; to: any }>);
+
+      console.log("Form changes:", changes);
+    }
+  }, [formValues, initialValues]);
+
   async function onSubmit(values: z.infer<typeof FormSchema>) {
+    const changedValues = Object.keys(values).reduce((acc, key) => {
+      const k = key as keyof typeof values;
+
+      if (
+        ["avatar", "idCardFace", "idCardBack", "addressProof"].includes(key)
+      ) {
+        if (values[k] && values[k] instanceof File) {
+          acc[k] = values[k];
+        }
+      } else if (values[k] !== initialValues[k as keyof typeof initialValues]) {
+        acc[k] = values[k];
+      }
+
+      return acc;
+    }, {} as Record<string, any>);
+
     const formData = {
-      ...values,
-      roleId: getRoleId(values.roleId),
+      ...changedValues,
+      roleId: changedValues.roleId
+        ? getRoleId(changedValues.roleId)
+        : undefined,
       ...(userId !== "new" && { id: userId }),
     };
 
     try {
-      await updateUser(formData);
+      // Remove any undefined values from the formData object
+      const cleanedFormData = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value !== undefined)
+      );
+      await updateUser(cleanedFormData);
       form.reset();
       router.push("/users");
     } catch (error) {}
@@ -154,6 +210,13 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             onChange(file);
+                            if (file) {
+                              console.log("File changed:", {
+                                field: "avatar",
+                                from: initialValues.avatar,
+                                to: "New file uploaded",
+                              });
+                            }
                           }}
                           className="sr-only"
                           {...field}
@@ -197,6 +260,13 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             onChange(file);
+                            if (file) {
+                              console.log("File changed:", {
+                                field: "idCardFace",
+                                from: initialValues.idCardFace,
+                                to: "New file uploaded",
+                              });
+                            }
                           }}
                           className="sr-only"
                           {...field}
@@ -240,6 +310,13 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             onChange(file);
+                            if (file) {
+                              console.log("File changed:", {
+                                field: "idCardBack",
+                                from: initialValues.idCardBack,
+                                to: "New file uploaded",
+                              });
+                            }
                           }}
                           className="sr-only"
                           {...field}
@@ -283,6 +360,13 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             onChange(file);
+                            if (file) {
+                              console.log("File changed:", {
+                                field: "addressProof",
+                                from: initialValues.addressProof,
+                                to: "New file uploaded",
+                              });
+                            }
                           }}
                           className="sr-only"
                           {...field}
@@ -440,7 +524,15 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value !== initialValues.roleId) {
+                          console.log("Role changed:", {
+                            from: getRoleName(initialValues.roleId),
+                            to: getRoleName(value),
+                          });
+                        }
+                      }}
                       defaultValue={field.value}
                       value={field.value}
                       disabled={isPending}

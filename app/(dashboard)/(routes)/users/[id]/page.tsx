@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Trash2, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ export default function EditUserPage() {
   const { id: userId } = useParams();
   const { mutateAsync: deleteUser } = useDeleteUser();
   const { data: user, isLoading, isSuccess } = useGetUserById(String(userId));
+
   const router = useRouter();
   const [isActive, setIsActive] = React.useState<boolean>(
     user?.data.user.status === EUserStatus.ACTIVE
@@ -52,7 +53,6 @@ export default function EditUserPage() {
     return <div>User not found</div>;
   }
 
-  console.log(user);
   return (
     <div className="p-6">
       <div className="mb-8 flex items-center justify-between">
