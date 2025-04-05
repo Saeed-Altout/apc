@@ -6,8 +6,6 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 
-import { DataTable } from "./_components/data-table";
-
 import {
   columns,
   filterableColumns,
@@ -15,6 +13,7 @@ import {
   defaultSort,
   defaultVisibleColumns,
 } from "./_components/columns";
+import { DataTable } from "./_components/data-table";
 
 import { useGetUsersQuery } from "@/services/users/users-hook";
 
@@ -29,8 +28,9 @@ export default function UsersPage() {
     );
   }
 
-  const formattedData = users.data.items.map((item) => ({
-    id: item.id,
+  const formattedData = users.data.items.map((item, index) => ({
+    sequence: index + 1,
+    id: item.user.id,
     fullName: `${item.firstname} ${item.lastname}`,
     phone: item.user.phoneNumber,
     email: item.email,

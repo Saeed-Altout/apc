@@ -6,12 +6,25 @@ declare type IAxiosResponse<T> = {
 declare type IParams = Record<string, any>;
 declare type IAccessToken = string;
 declare type IRefreshToken = string;
-declare type User = {
-  id: string;
-  name: string;
+declare type IUser = {
   email: string;
-  phoneNumber: string;
-  role: string;
+  firstname: string;
+  id: number;
+  lastname: string;
+  timeCreated: string;
+  timeUpdated: string;
+  user: {
+    id: number;
+    phoneNumber: string;
+    role: {
+      id: number;
+      name: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    status: string;
+    telegramUsername: string;
+  };
 };
 
 declare type ILoginCredentials = {
@@ -127,18 +140,8 @@ declare type IUser = {
   telegramUsername: string;
 };
 
-declare type IUserItem = {
-  email: string;
-  firstname: string;
-  id: number;
-  lastname: string;
-  timeCreated: Date;
-  timeUpdated: Date;
-  user: IUser;
-};
-
 declare type IUsersResponse = IAxiosResponse<{
-  items: IUserItem[];
+  items: IUser[];
   limit: number;
   nextNum: number;
   page: number;

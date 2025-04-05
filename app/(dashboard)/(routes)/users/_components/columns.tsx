@@ -10,10 +10,11 @@ import { DataTableColumnHeader } from "@/app/(dashboard)/(routes)/users/_compone
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export type User = {
+  sequence: number;
   id: number;
   fullName: string;
-  email: string;
   phone: string;
+  email: string;
   telegram: string;
   role: string;
   status: string;
@@ -48,12 +49,12 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "sequence",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ID" />
     ),
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("id")}</div>;
+      return <div className="font-medium">{row.getValue("sequence")}</div>;
     },
   },
   {
