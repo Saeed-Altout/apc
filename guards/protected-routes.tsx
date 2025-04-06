@@ -2,42 +2,46 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { StorageService } from "@/services/token/storage-service";
+import { AuthService } from "@/services/auth/auth-service";
+import { AUTH_LOGIN_REDIRECT } from "@/config/constants";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
-interface ProtectedRouteProps {
+interface ProtectedRoutesProps {
   children: React.ReactNode;
 }
 
+// Define public paths that don't need authentication
 const PUBLIC_PATHS = ["/login", "/forgot-password", "/new-password"];
 
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({
+  children,
+}) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Check if user is authenticated
     const checkAuth = () => {
-      // Avoid auth check for public pages
+      // Skip auth check for public paths
       if (PUBLIC_PATHS.some((path) => pathname.includes(path))) {
+        setIsAuthenticated(true);
         setIsLoading(false);
         return;
       }
 
-      const isAuth = StorageService.isAuthenticated();
-      setIsAuthenticated(isAuth);
+      const isLoggedIn = AuthService.isAuthenticated();
+      setIsAuthenticated(isLoggedIn);
 
-      if (!isAuth) {
-        router.push("/login");
+      if (!isLoggedIn) {
+        router.push(AUTH_LOGIN_REDIRECT);
       }
 
       setIsLoading(false);
     };
 
     checkAuth();
-  }, [pathname, router]);
+  }, [router, pathname]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -48,12 +52,11 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // If on a protected route and not authenticated, the useEffect will redirect to login
-  // If on a public route or authenticated, render the children
-  return isAuthenticated ||
-    PUBLIC_PATHS.some((path) => pathname.includes(path)) ? (
-    <>{children}</>
-  ) : null;
-};
+  // If authenticated, render children
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
 
-export default ProtectedRoute;
+  // Otherwise, render nothing (redirect will happen in useEffect)
+  return null;
+};

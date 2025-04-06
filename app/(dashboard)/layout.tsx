@@ -5,7 +5,6 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ProtectedRoute } from "@/components/protected-route";
 
 import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
 import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
@@ -13,6 +12,7 @@ import { DeleteUserModal } from "./(routes)/users/_components/delete-user-modal"
 import { LogoutModal } from "../(auth)/_components/logout-modal";
 import { BlockUsersModal } from "./(routes)/users/_components/block-users-modal";
 import { DeleteUsersModal } from "./(routes)/users/_components/delete-users-modal";
+import { ProtectedRoutes } from "@/guards/protected-routes";
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
@@ -25,7 +25,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ProtectedRoute>
+    <ProtectedRoutes>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -55,6 +55,6 @@ export default function DashboardLayout({
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </ProtectedRoute>
+    </ProtectedRoutes>
   );
 }
