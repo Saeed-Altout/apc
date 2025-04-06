@@ -16,11 +16,24 @@ import { SettingsTab } from "./_components/settings-tab";
 import { DevicesTab } from "./_components/devices-tab";
 import { useDeleteUser, useGetUserById } from "@/services/users/users-hook";
 import { EUserStatus } from "@/enums/user-status";
+import { useGetDevicesById } from "@/services/devices/devices-hook";
 
 export default function EditUserPage() {
   const { id: userId } = useParams();
   const { mutateAsync: deleteUser } = useDeleteUser();
-  const { data: user, isLoading, isSuccess } = useGetUserById(String(userId));
+  const {
+    data: user,
+    isLoading: userIsLoading,
+    isSuccess: userIsSuccess,
+  } = useGetUserById(String(userId));
+  const {
+    data: devices,
+    isLoading: devicesIsLoading,
+    isSuccess: devicesIsSuccess,
+  } = useGetDevicesById(String(userId));
+
+  const isLoading = userIsLoading || devicesIsLoading;
+  const isSuccess = userIsSuccess && devicesIsSuccess;
 
   const router = useRouter();
   const [isActive, setIsActive] = React.useState<boolean>(
@@ -112,7 +125,7 @@ export default function EditUserPage() {
           </TabsContent>
 
           <TabsContent value="devices">
-            <DevicesTab />
+            <DevicesTab devices={devices.data} />
           </TabsContent>
 
           <TabsContent value="accounts">

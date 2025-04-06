@@ -2,6 +2,10 @@ declare type IAxiosResponse<T> = {
   data: T;
   message: string | null;
 };
+declare type IApiObj<T> = {
+  data: T;
+  message: string | null;
+};
 
 declare type IParams = Record<string, any>;
 declare type IAccessToken = string;
@@ -189,4 +193,14 @@ declare type IDeleteMultipleUsersCredentials = {
 };
 declare type IBlockMultipleUsersCredentials = {
   usersIds: number[];
+};
+
+declare type IDevice = {
+  deviceId: string;
+  deviceName: string;
+  id: number;
+  isActive: boolean;
+  is_main: boolean;
+  timeCreated: string;
+  timeUpdated: string;
 };

@@ -8,10 +8,11 @@ interface ModalStore {
   data?: {
     user?: User;
     usersIds?: number[];
+    device?: IDevice;
   };
   onOpen: (
     type: ModalType,
-    data?: { user?: User; usersIds?: number[] }
+    data?: { user?: User; usersIds?: number[]; device?: IDevice }
   ) => void;
   onClose: () => void;
 }
