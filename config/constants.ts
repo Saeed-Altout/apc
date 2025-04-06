@@ -3,7 +3,7 @@ import { Home, Users, File, Stars, Settings } from "lucide-react";
 export const NAME_PROJECT = "Apc Prime";
 export const MAX_AGE_ACCESS_TOKEN = 30 * 24 * 60 * 60;
 export const MAX_AGE_REFRESH_TOKEN = 30 * 24 * 60 * 60;
-export const DEFAULT_PATH = "/dashboard";
+export const DEFAULT_PATH = "/";
 export const AUTH_LOGIN_REDIRECT = "/login";
 
 export const ROLES = [
