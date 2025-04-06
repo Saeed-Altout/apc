@@ -5,6 +5,7 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProtectedRoute } from "@/components/protected-route";
 
 import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
 import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
@@ -24,34 +25,36 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center justify-between gap-2 border-b px-4 z-50">
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col items-end mr-2">
-              <span className="text-sm font-medium">Hozan</span>
-              <span className="text-xs text-muted-foreground">
-                Administrator
-              </span>
+    <ProtectedRoute>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center justify-between gap-2 border-b px-4 z-50">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end mr-2">
+                <span className="text-sm font-medium">Hozan</span>
+                <span className="text-xs text-muted-foreground">
+                  Administrator
+                </span>
+              </div>
+              <Avatar>
+                <AvatarImage src="/avatar.png" alt="Admin" />
+                <AvatarFallback>AD</AvatarFallback>
+              </Avatar>
             </div>
-            <Avatar>
-              <AvatarImage src="/avatar.png" alt="Admin" />
-              <AvatarFallback>AD</AvatarFallback>
-            </Avatar>
+          </header>
+          <div className="flex flex-1 flex-col gap-8 py-4 px-4 md:px-6 lg:px-8 xl:px-10">
+            {children}
+            <AddUserModal />
+            <BlockUserModal />
+            <DeleteUserModal />
+            <LogoutModal />
+            <DeleteUsersModal />
+            <BlockUsersModal />
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-8 py-4 px-4 md:px-6 lg:px-8 xl:px-10">
-          {children}
-          <AddUserModal />
-          <BlockUserModal />
-          <DeleteUserModal />
-          <LogoutModal />
-          <DeleteUsersModal />
-          <BlockUsersModal />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   );
 }
