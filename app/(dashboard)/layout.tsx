@@ -28,7 +28,7 @@ export default function DashboardLayout({
     <ProtectedRoutes>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1 overflow-hidden">
           <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center justify-between gap-2 border-b px-4 z-50">
             <SidebarTrigger className="-ml-1" />
             <div className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export default function DashboardLayout({
               </Avatar>
             </div>
           </header>
-          <div className="flex flex-1 flex-col gap-8 py-4 px-4 md:px-6 lg:px-8 xl:px-10">
+          <div className="flex flex-1 flex-col gap-6 p-4">
             {children}
             <AddUserModal />
             <BlockUserModal />

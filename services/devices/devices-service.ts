@@ -3,7 +3,6 @@ import { apiClient } from "@/lib/api-client";
 export const DevicesService = {
   ROOT: "/user-devices",
 
-  // TODO: Update response type
   setMain: async (id: string): Promise<IApiObj<null>> => {
     try {
       const res = await apiClient.put(`${DevicesService.ROOT}/${id}/set-main`);

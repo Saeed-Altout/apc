@@ -134,14 +134,12 @@ export function DevicesTab({ devices }: { devices: IDevice[] }) {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <Laptop className="h-10 w-10 text-muted-foreground" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">No Devices</h3>
-            <p className="mb-4 mt-2 text-center text-sm text-muted-foreground">
-              This user doesn't have any registered devices yet.
-            </p>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Device
-            </Button>
+            <div className="text-center">
+              <h3 className="mt-4 text-lg font-semibold">No Devices</h3>
+              <p className="mb-4 mt-2 text-center text-sm text-muted-foreground">
+                This user doesn't have any registered devices yet.
+              </p>
+            </div>
           </Card>
         )}
       </div>

@@ -2,9 +2,8 @@
 import * as React from "react";
 import { format } from "date-fns";
 
-import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
+import { Wrapper } from "@/components/ui/wrapper";
 
 import {
   columns,
@@ -14,21 +13,12 @@ import {
   defaultVisibleColumns,
 } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
-
 import { useGetUsersQuery } from "@/services/users/users-hook";
 
 export default function UsersPage() {
   const { data: users, isLoading } = useGetUsersQuery({ params: {} });
 
-  if (isLoading || !users) {
-    return (
-      <div className="h-full flex justify-center items-center">
-        <Spinner variant="circle" size="lg" />
-      </div>
-    );
-  }
-
-  const formattedData = users.data.items.map((item, index) => ({
+  const formattedData = users?.data.items.map((item, index) => ({
     sequence: index + 1,
     id: item.user.id,
     fullName: `${item.firstname} ${item.lastname}`,
@@ -42,17 +32,20 @@ export default function UsersPage() {
   }));
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <Heading title="Users" description="Manage your user accounts" />
+    <Wrapper
+      title="Users"
+      description="Manage your user accounts"
+      isLoading={isLoading}
+    >
       <Separator />
       <DataTable
         columns={columns}
-        data={formattedData}
+        data={formattedData ?? []}
         filterableColumns={filterableColumns}
         searchableColumns={searchableColumns}
         defaultSort={defaultSort}
         defaultVisibleColumns={defaultVisibleColumns}
       />
-    </div>
+    </Wrapper>
   );
 }

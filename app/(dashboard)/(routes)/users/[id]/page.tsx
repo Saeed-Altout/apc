@@ -1,55 +1,39 @@
 "use client";
 import * as React from "react";
+import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Wrapper } from "@/components/ui/wrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ProfileTab } from "./_components/profile-tab";
 import { AccountsTab } from "./_components/accounts-tab";
 import { DocumentsTab } from "./_components/documents-tab";
-import { SettingsTab } from "./_components/settings-tab";
 import { DevicesTab } from "./_components/devices-tab";
-import { useDeleteUser, useGetUserById } from "@/services/users/users-hook";
-import { EUserStatus } from "@/enums/user-status";
+
+import { ModalType } from "@/config/enums";
+import { useModal } from "@/hooks/use-modal";
+
+import { useGetUserById } from "@/services/users/users-hook";
 import { useGetDevicesById } from "@/services/devices/devices-hook";
 
 export default function EditUserPage() {
-  const { id: userId } = useParams();
-  const { mutateAsync: deleteUser } = useDeleteUser();
-  const {
-    data: user,
-    isLoading: userIsLoading,
-    isSuccess: userIsSuccess,
-  } = useGetUserById(String(userId));
-  const {
-    data: devices,
-    isLoading: devicesIsLoading,
-    isSuccess: devicesIsSuccess,
-  } = useGetDevicesById(String(userId));
-
-  const isLoading = userIsLoading || devicesIsLoading;
-  const isSuccess = userIsSuccess && devicesIsSuccess;
-
   const router = useRouter();
-  const [isActive, setIsActive] = React.useState<boolean>(
-    user?.data.user.status === EUserStatus.ACTIVE
+  const { id: userId } = useParams();
+
+  const { onOpen } = useModal();
+  const { data: user, isLoading: userIsLoading } = useGetUserById(
+    String(userId)
+  );
+  const { data: devices, isLoading: devicesIsLoading } = useGetDevicesById(
+    String(userId)
   );
 
-  const handleBack = () => {
-    router.back();
-  };
+  const isLoading = userIsLoading || devicesIsLoading;
 
   const handleDelete = () => {
-    deleteUser(String(userId));
-  };
-
-  const handleSave = () => {
-    console.log("Save user:", userId);
+    onOpen(ModalType.DELETE_USER, { user: user?.data });
   };
 
   React.useEffect(() => {
@@ -58,89 +42,49 @@ export default function EditUserPage() {
     }
   }, [userId, router]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isSuccess) {
-    return <div>User not found</div>;
-  }
-
   return (
-    <div className="p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-x-2">
-          <Button variant="outline" size="icon" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-xl font-semibold">
-            Edit User{" "}
-            <Badge variant="outline" className="ml-2">
-              {user.data.user.status}
-            </Badge>
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-x-2">
-          <div className="flex items-center gap-x-4 mr-6">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="user-active"
-                checked={isActive}
-                onCheckedChange={setIsActive}
-              />
-              <Label htmlFor="user-active">Account status:</Label>
-            </div>
-            <Badge variant={isActive ? "success" : "destructive"}>
-              {isActive ? "Active" : "Inactive"}
-            </Badge>
-          </div>
-
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleDelete}
-            disabled={userId === "new"}
-          >
-            Delete
-          </Button>
-          <Button size="sm" onClick={handleSave}>
-            Save changes
-          </Button>
-        </div>
-      </div>
-
+    <Wrapper
+      title="Edit User"
+      description="Edit the user's profile"
+      redirectTo="/users"
+      isLoading={isLoading}
+      actions={
+        <Button
+          variant="destructive"
+          onClick={handleDelete}
+          disabled={userId === "new"}
+        >
+          <Trash className="w-4 h-4" />
+          Delete
+        </Button>
+      }
+    >
       <Tabs defaultValue="profile" className="w-full">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="devices">Devices</TabsTrigger>
           <TabsTrigger value="accounts">Accounts</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="documentation">Documentation</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
           <TabsContent value="profile">
-            <ProfileTab user={user.data} />
+            <ProfileTab user={user?.data ?? ({} as IUserObject)} />
           </TabsContent>
 
           <TabsContent value="devices">
-            <DevicesTab devices={devices.data} />
+            <DevicesTab devices={devices?.data ?? []} />
           </TabsContent>
 
           <TabsContent value="accounts">
             <AccountsTab />
           </TabsContent>
 
-          <TabsContent value="documents">
+          <TabsContent value="documentation">
             <DocumentsTab />
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <SettingsTab />
           </TabsContent>
         </div>
       </Tabs>
-    </div>
+    </Wrapper>
   );
 }

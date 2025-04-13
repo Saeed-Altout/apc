@@ -1,8 +1,8 @@
 import { apiClient } from "@/lib/api-client";
 
 export const UsersService = {
-  EDIT_USER: "/users/admin/",
-  ADD_USER: "/users/admin/",
+  EDIT_USER: "/users/admin",
+  ADD_USER: "/users/admin",
   ROOT: "/users",
   UPLOAD_ID_CARD: "/upload/id-cards",
   GET_USER_PERSONAL_INFORMATION: "/personal-information",
