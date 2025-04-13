@@ -15,6 +15,8 @@ export enum ModalType {
   DELETE_DEVICE = "DELETE_DEVICE",
   SET_MAIN_DEVICE = "SET_MAIN_DEVICE",
   ACCEPT_DEVICE = "ACCEPT_DEVICE",
+  ADD_WALLET = "ADD_WALLET",
+  ADD_ACCOUNT = "ADD_ACCOUNT",
 }
 
 export enum UserRole {
