@@ -39,7 +39,7 @@ export const Wrapper = ({
               <Skeleton className="h-8 w-[200px]" />
               <Skeleton className="h-4 w-[300px]" />
             </div>
-            {redirectTo && <Skeleton className="h-10 w-[100px]" />}
+            {redirectTo && <Skeleton className="h-8 w-[100px]" />}
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -60,7 +60,7 @@ export const Wrapper = ({
           <div className="flex items-center justify-end gap-x-2">
             {redirectTo && (
               <Link href={redirectTo}>
-                <Button variant="outline">
+                <Button variant="outline" size="sm">
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>

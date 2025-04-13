@@ -170,7 +170,7 @@ export const filterableColumns = [
 export const searchableColumns = [
   {
     id: "fullName",
-    title: "Full Name",
+    title: "full name",
   },
 ];
 

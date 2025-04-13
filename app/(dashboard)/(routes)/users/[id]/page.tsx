@@ -53,6 +53,7 @@ export default function EditUserPage() {
           variant="destructive"
           onClick={handleDelete}
           disabled={userId === "new"}
+          size="sm"
         >
           <Trash className="w-4 h-4" />
           Delete
