@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { ModalType } from "@/config/enums";
 import { Request } from "@/schemas/request";
 import { Transaction } from "@/schemas/transaction";
+import { KycFile } from "@/schemas/kyc-file";
 
 interface ModalStore {
   type: ModalType | null;
@@ -12,6 +13,7 @@ interface ModalStore {
     device?: IDevice;
     request?: Request;
     transaction?: Transaction;
+    kycFile?: KycFile;
   };
   onOpen: (
     type: ModalType,
@@ -21,6 +23,7 @@ interface ModalStore {
       device?: IDevice;
       request?: Request;
       transaction?: Transaction;
+      kycFile?: KycFile;
     }
   ) => void;
   onClose: () => void;
