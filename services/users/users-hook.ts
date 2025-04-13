@@ -1,10 +1,10 @@
-import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { useModal } from "@/hooks/use-modal";
-import { UsersService } from "./users-service";
+import { UsersService, IParams } from "./users-service";
 import { useUsersStore, IUserFilter } from "./users-store";
-import { toast } from "sonner";
+import { useEffect } from "react";
 
 export const useGetUsersQuery = ({ params }: { params: IParams }) => {
   return useQuery({
@@ -17,12 +17,13 @@ export const useGetUserById = (id: string) => {
   return useQuery({
     queryKey: ["user", id],
     queryFn: () => UsersService.getUserById(id),
+    enabled: !!id,
   });
 };
 
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
-  const onClose = useModal((state) => state.onClose);
+  const { onClose } = useModal();
 
   return useMutation({
     mutationKey: ["delete-user"],
@@ -40,7 +41,8 @@ export const useDeleteUser = () => {
 
 export const useBlockUser = () => {
   const queryClient = useQueryClient();
-  const onClose = useModal((state) => state.onClose);
+  const { onClose } = useModal();
+
   return useMutation({
     mutationKey: ["block-user"],
     mutationFn: (id: string) => UsersService.blockUser(id),
@@ -57,6 +59,7 @@ export const useBlockUser = () => {
 
 export const useDeleteMultipleUsers = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["delete-multiple-users"],
     mutationFn: (data: IDeleteMultipleUsersCredentials) =>
@@ -70,8 +73,10 @@ export const useDeleteMultipleUsers = () => {
     },
   });
 };
+
 export const useBlockMultipleUsers = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["block-multiple-users"],
     mutationFn: (data: IBlockMultipleUsersCredentials) =>
@@ -88,11 +93,14 @@ export const useBlockMultipleUsers = () => {
 
 export const useAddUserMutation = () => {
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
+
   return useMutation({
     mutationKey: ["add-user"],
     mutationFn: (data: IAddUserCredentials) => UsersService.addUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      onClose();
       toast.success("User added successfully");
     },
     onError: () => {
@@ -100,14 +108,18 @@ export const useAddUserMutation = () => {
     },
   });
 };
+
 export const useUpdateUserMutation = ({ id }: { id: string }) => {
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
+
   return useMutation({
     mutationKey: ["update-user"],
     mutationFn: (data: IUpdateUserCredentials) =>
       UsersService.updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      onClose();
       toast.success("User updated successfully");
     },
     onError: () => {

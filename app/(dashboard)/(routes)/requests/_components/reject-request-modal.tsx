@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -12,48 +12,69 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { useRejectRequestMutation } from "@/services/requests/requests-hook";
+
+const formSchema = z.object({
+  rejectionReason: z
+    .string()
+    .min(10, { message: "Rejection reason must be at least 10 characters" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const RejectRequestModal = () => {
   const { isOpen, onClose, type, data } = useModal();
-  const [reason, setReason] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutateAsync: rejectRequest, isPending } = useRejectRequestMutation();
 
   const isModalOpen = isOpen && type === ModalType.REJECT_REQUEST;
   const { request } = data || {};
 
-  const onSubmit = async () => {
-    if (!reason.trim()) {
-      return;
-    }
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      rejectionReason: "",
+    },
+  });
 
+  const onSubmit = async (values: FormValues) => {
     try {
-      setIsLoading(true);
-      // Add your API call here
-      console.log("Rejecting request:", request?.id, "Reason:", reason);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      onClose();
-      setReason("");
+      if (request?.id) {
+        await rejectRequest({
+          id: request.id,
+          rejectionReason: values.rejectionReason,
+        });
+        form.reset();
+      }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    onClose();
-    setReason("");
   };
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={handleClose}>
+    <Dialog
+      open={isModalOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          form.reset();
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Reject Request</DialogTitle>
@@ -63,7 +84,7 @@ export const RejectRequestModal = () => {
         </DialogHeader>
 
         {request && (
-          <div className="space-y-4 py-2">
+          <div className="mb-4 space-y-4 py-2">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="font-medium">ID:</div>
               <div>{request.id}</div>
@@ -77,37 +98,53 @@ export const RejectRequestModal = () => {
               <div className="font-medium">Account Number:</div>
               <div>{request.accountNumber}</div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="reason">Rejection Reason</Label>
-              <Textarea
-                id="reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Enter the reason for rejection"
-                className="min-h-[100px]"
-              />
-            </div>
           </div>
         )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            onClick={onSubmit}
-            disabled={isLoading || !reason.trim()}
-            variant="destructive"
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <X className="mr-2 h-4 w-4" />
-            )}
-            Reject
-          </Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="rejectionReason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rejection Reason</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Please explain why this request is being rejected"
+                      className="resize-none"
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                {isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="mr-2 h-4 w-4" />
+                )}
+                Reject
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

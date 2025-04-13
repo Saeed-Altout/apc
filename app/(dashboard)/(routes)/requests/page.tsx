@@ -8,6 +8,7 @@ import { DataTable } from "@/app/(dashboard)/(routes)/users/_components/data-tab
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Wrapper } from "@/components/ui/wrapper";
 
 import {
   columns,
@@ -18,26 +19,52 @@ import {
 } from "./_components/columns";
 import { ApproveRequestModal } from "./_components/approve-request-modal";
 import { RejectRequestModal } from "./_components/reject-request-modal";
+import { AddRequestModal } from "./_components/add-request-modal";
+import { EditRequestModal } from "./_components/edit-request-modal";
+import { ExportRequestModal } from "./_components/export-request-modal";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { mockRequests } from "@/config/constants";
+import { useGetRequestsQuery } from "@/services/requests/requests-hook";
 
 export default function RequestsPage() {
   const { onOpen } = useModal();
   const [operationType, setOperationType] = useState<string>("all");
 
-  const filteredRequests = React.useMemo(() => {
-    if (operationType === "all") return mockRequests;
-    return mockRequests.filter(
-      (request) => request.operationType === operationType
-    );
+  // Define params object for API queries
+  const params = React.useMemo(() => {
+    return operationType !== "all" ? { operationType } : {};
   }, [operationType]);
 
+  // Fetch requests data from API
+  const { data: requestsData, isLoading } = useGetRequestsQuery({ params });
+
+  // Format the data for the data table
+  const formattedRequests = React.useMemo(() => {
+    if (!requestsData) return [];
+
+    return requestsData.data.items.map((request) => ({
+      id: request.id,
+      name: request.name,
+      email: request.email,
+      phone: request.phone,
+      accountNumber: request.accountNumber,
+      operationType: request.operationType,
+      status: request.status,
+      accountManager: request.accountManager,
+      rejectionReason: request.rejectionReason,
+      requestDate: new Date(request.requestDate),
+    }));
+  }, [requestsData]);
+
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <Wrapper
+      title="Requests"
+      description="Manage user requests"
+      isLoading={isLoading}
+    >
       <div className="flex items-center justify-between">
-        <Heading title="Requests" description="Manage user requests" />
+        <div />
         <div className="flex items-center gap-2">
           <Button
             onClick={() => onOpen(ModalType.EXPORT_REQUEST)}
@@ -74,15 +101,20 @@ export default function RequestsPage() {
         </TabsList>
         <DataTable
           columns={columns}
-          data={filteredRequests}
+          data={formattedRequests}
           filterableColumns={filterableColumns}
           searchableColumns={searchableColumns}
           defaultSort={defaultSort}
           defaultVisibleColumns={defaultVisibleColumns}
         />
       </Tabs>
+
+      {/* Render all modals */}
+      <AddRequestModal />
+      <EditRequestModal />
       <ApproveRequestModal />
       <RejectRequestModal />
-    </div>
+      <ExportRequestModal />
+    </Wrapper>
   );
 }

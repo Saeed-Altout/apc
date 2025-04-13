@@ -1,5 +1,9 @@
 import { apiClient } from "@/lib/api-client";
 
+export interface IParams {
+  [key: string]: string | number | boolean | undefined;
+}
+
 export const UsersService = {
   EDIT_USER: "/users/admin",
   ADD_USER: "/users/admin",
@@ -93,15 +97,15 @@ export const UsersService = {
     try {
       const formData = new FormData();
 
-      formData.append("phonenumber", data.phonenumber);
-      formData.append("firstname", data.firstname);
-      formData.append("lastname", data.lastname);
-      formData.append("email", data.email);
-      formData.append("roleId", data.roleId);
-      formData.append("addressLine", data.addressLine);
-      formData.append("city", data.city);
-      formData.append("country", data.country);
-      formData.append("state", data.state);
+      formData.append("phonenumber", data.phonenumber ?? "");
+      formData.append("firstname", data.firstname ?? "");
+      formData.append("lastname", data.lastname ?? "");
+      formData.append("email", data.email ?? "");
+      formData.append("roleId", data.roleId ?? "");
+      formData.append("addressLine", data.addressLine ?? "");
+      formData.append("city", data.city ?? "");
+      formData.append("country", data.country ?? "");
+      formData.append("state", data.state ?? "");
 
       if (data.avatar) formData.append("avatar", data.avatar);
       if (data.idCardFace) formData.append("idCardFace", data.idCardFace);

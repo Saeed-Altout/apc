@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 
 import {
@@ -14,28 +13,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { useApproveRequestMutation } from "@/services/requests/requests-hook";
 
 export const ApproveRequestModal = () => {
   const { isOpen, onClose, type, data } = useModal();
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutateAsync: approveRequest, isPending } =
+    useApproveRequestMutation();
 
   const isModalOpen = isOpen && type === ModalType.APPROVE_REQUEST;
   const { request } = data || {};
 
   const onSubmit = async () => {
     try {
-      setIsLoading(true);
-      // Add your API call here
-      console.log("Approving request:", request?.id);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      onClose();
+      if (request?.id) {
+        await approveRequest(request.id);
+      }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -68,15 +62,15 @@ export const ApproveRequestModal = () => {
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
           <Button
             onClick={onSubmit}
-            disabled={isLoading}
+            disabled={isPending}
             className="bg-green-600 hover:bg-green-700"
           >
-            {isLoading ? (
+            {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Check className="mr-2 h-4 w-4" />

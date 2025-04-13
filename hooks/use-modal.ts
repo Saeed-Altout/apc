@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { ModalType } from "@/config/enums";
+import { Request } from "@/schemas/request";
 
 interface ModalStore {
   type: ModalType | null;
@@ -8,10 +9,16 @@ interface ModalStore {
     user?: IUserObject;
     usersIds?: number[];
     device?: IDevice;
+    request?: Request;
   };
   onOpen: (
     type: ModalType,
-    data?: { user?: IUserObject; usersIds?: number[]; device?: IDevice }
+    data?: {
+      user?: IUserObject;
+      usersIds?: number[];
+      device?: IDevice;
+      request?: Request;
+    }
   ) => void;
   onClose: () => void;
 }
