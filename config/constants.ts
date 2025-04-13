@@ -46,7 +46,20 @@ export const ROUTES = [
   {
     title: "Settings",
     url: "/settings",
-    items: [],
+    items: [
+      {
+        title: "Translation",
+        url: "/translation",
+      },
+      {
+        title: "Operations",
+        url: "/operations",
+      },
+      {
+        title: "Admins",
+        url: "/admins",
+      },
+    ],
     icon: Settings,
   },
 ];
