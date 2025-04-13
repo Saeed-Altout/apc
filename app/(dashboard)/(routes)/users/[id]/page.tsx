@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ProfileTab } from "./_components/profile-tab";
 import { AccountsTab } from "./_components/accounts-tab";
-import { DocumentsTab } from "./_components/documents-tab";
+import { DocumentationTab } from "./_components/documentation-tab";
 import { DevicesTab } from "./_components/devices-tab";
 
 import { ModalType } from "@/config/enums";
@@ -81,7 +81,7 @@ export default function EditUserPage() {
           </TabsContent>
 
           <TabsContent value="documentation">
-            <DocumentsTab />
+            <DocumentationTab />
           </TabsContent>
         </div>
       </Tabs>
