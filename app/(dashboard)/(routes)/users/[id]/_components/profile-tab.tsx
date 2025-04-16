@@ -36,9 +36,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-import { ROLES } from "@/config/constants";
 import { useUpdateUserMutation } from "@/services/users/users-hook";
-import { cn, getImageUrl, getRoleId, getRoleName } from "@/lib/utils";
+import { cn, getImageUrl, getRoles, getRoleName } from "@/lib/utils";
 
 export const FormSchema = z.object({
   firstname: z
@@ -66,29 +65,41 @@ export const FormSchema = z.object({
   addressProof: z.any().nullable(),
 });
 
-export function ProfileTab({ user }: { user: IUserObject }) {
+export function ProfileTab({
+  user,
+  roles,
+}: {
+  user: IUserObject;
+  roles: IRole[];
+}) {
   const { id: userId } = useParams();
   const router = useRouter();
+  const rolesList = React.useMemo(() => getRoles(roles), [roles]);
+
+  const [avatarLoaded, setAvatarLoaded] = React.useState(false);
+  const [idFaceLoaded, setIdFaceLoaded] = React.useState(false);
+  const [idBackLoaded, setIdBackLoaded] = React.useState(false);
+  const [addressProofLoaded, setAddressProofLoaded] = React.useState(false);
+
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation({
     id: String(userId),
   });
 
-  // Store the initial form values for comparison
   const initialValues = React.useMemo(
     () => ({
-      firstname: user.firstname || "",
-      lastname: user.lastname || "",
-      state: user.user.address.state || "",
-      country: user.user.address.country || "",
-      city: user.user.address.city || "",
-      addressLine: user.user.address.addressLine || "",
-      email: user.email || "",
-      phonenumber: user.user.phoneNumber || "",
-      roleId: getRoleId(user.user.role) || "",
-      avatar: user.avatar || "",
-      idCardFace: user.user.idCardFace.link || "",
-      idCardBack: user.user.idCardBack.link || "",
-      addressProof: user.user.address.addressProof.link || "",
+      firstname: user?.firstname || "",
+      lastname: user?.lastname || "",
+      state: user?.user?.address?.state || "",
+      country: user?.user?.address?.country || "",
+      city: user?.user?.address?.city || "",
+      addressLine: user?.user?.address?.addressLine || "",
+      email: user?.email || "",
+      phonenumber: user?.user?.phoneNumber || "",
+      roleId: user?.user?.role?.id?.toString() || "",
+      avatar: user?.avatar?.link || "",
+      idCardFace: user?.user?.idCardFace?.link || "",
+      idCardBack: user?.user?.idCardBack?.link || "",
+      addressProof: user?.user?.address?.addressProof?.link || "",
     }),
     [user]
   );
@@ -99,6 +110,11 @@ export function ProfileTab({ user }: { user: IUserObject }) {
   });
 
   const formValues = form.watch();
+  const selectedRoleId = form.watch("roleId");
+  const selectedRoleName = React.useMemo(
+    () => getRoleName(selectedRoleId, rolesList),
+    [selectedRoleId, rolesList]
+  );
 
   React.useEffect(() => {
     const changedFields = Object.keys(formValues).filter((key) => {
@@ -115,18 +131,28 @@ export function ProfileTab({ user }: { user: IUserObject }) {
 
     if (changedFields.length > 0) {
       const changes = changedFields.reduce((acc, key) => {
+        let fromValue = initialValues[key as keyof typeof initialValues];
+        let toValue = formValues[key as keyof typeof formValues];
+
+        // For role, show the name instead of ID for better UX
+        if (key === "roleId") {
+          fromValue = getRoleName(fromValue, rolesList);
+          toValue = getRoleName(toValue, rolesList);
+        }
+
         acc[key] = {
-          from: initialValues[key as keyof typeof initialValues],
-          to: formValues[key as keyof typeof formValues],
+          from: fromValue,
+          to: toValue,
         };
         return acc;
       }, {} as Record<string, { from: any; to: any }>);
 
       console.log("Form changes:", changes);
     }
-  }, [formValues, initialValues]);
+  }, [formValues, initialValues, rolesList]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
+    // First identify changed values
     const changedValues = Object.keys(values).reduce((acc, key) => {
       const k = key as keyof typeof values;
 
@@ -136,29 +162,69 @@ export function ProfileTab({ user }: { user: IUserObject }) {
         if (values[k] && values[k] instanceof File) {
           acc[k] = values[k];
         }
-      } else if (values[k] !== initialValues[k as keyof typeof initialValues]) {
+      } else if (
+        values[k] !== initialValues[k as keyof typeof initialValues] &&
+        values[k] !== undefined &&
+        values[k] !== null &&
+        values[k] !== ""
+      ) {
         acc[k] = values[k];
       }
 
       return acc;
     }, {} as Record<string, any>);
 
-    const formData = {
-      ...changedValues,
-      roleId: changedValues.roleId
-        ? getRoleId(changedValues.roleId)
-        : undefined,
-      ...(userId !== "new" && { id: userId }),
-    };
-
     try {
-      // Remove any undefined values from the formData object
-      const cleanedFormData = Object.fromEntries(
-        Object.entries(formData).filter(([_, value]) => value !== undefined)
-      );
-      await updateUser(cleanedFormData);
-      form.reset();
-      router.push("/users");
+      // Create an object that conforms to IUpdateUserCredentials with just the changed fields
+      const updateData: IUpdateUserCredentials = {
+        ...(changedValues.firstname !== undefined && {
+          firstname: changedValues.firstname,
+        }),
+        ...(changedValues.lastname !== undefined && {
+          lastname: changedValues.lastname,
+        }),
+        ...(changedValues.email !== undefined && {
+          email: changedValues.email,
+        }),
+        ...(changedValues.phonenumber !== undefined && {
+          phonenumber: changedValues.phonenumber,
+        }),
+        ...(changedValues.roleId !== undefined && {
+          roleId: changedValues.roleId,
+        }),
+        ...(changedValues.addressLine !== undefined && {
+          addressLine: changedValues.addressLine,
+        }),
+        ...(changedValues.city !== undefined && { city: changedValues.city }),
+        ...(changedValues.country !== undefined && {
+          country: changedValues.country,
+        }),
+        ...(changedValues.state !== undefined && {
+          state: changedValues.state,
+        }),
+        ...(changedValues.avatar !== undefined && {
+          avatar: changedValues.avatar,
+        }),
+        ...(changedValues.idCardFace !== undefined && {
+          idCardFace: changedValues.idCardFace,
+        }),
+        ...(changedValues.idCardBack !== undefined && {
+          idCardBack: changedValues.idCardBack,
+        }),
+        ...(changedValues.addressProof !== undefined && {
+          addressProof: changedValues.addressProof,
+        }),
+      };
+
+      // Only proceed if there are actually changes to save
+      if (Object.keys(updateData).length > 0) {
+        await updateUser(updateData);
+        form.reset();
+        router.push("/users");
+      } else {
+        // No changes to save, just redirect
+        router.push("/users");
+      }
     } catch (error) {}
   }
 
@@ -187,14 +253,25 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                         )}
                       >
                         {value && getImageUrl(value) ? (
-                          <Image
-                            src={getImageUrl(value)}
-                            alt="image"
-                            fill
-                            priority
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover w-full h-full"
-                          />
+                          <>
+                            <Image
+                              src={getImageUrl(value)}
+                              alt="image"
+                              fill
+                              priority
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className={cn(
+                                "object-cover w-full h-full",
+                                !avatarLoaded && "blur-sm"
+                              )}
+                              onLoadingComplete={() => setAvatarLoaded(true)}
+                            />
+                            {!avatarLoaded && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Spinner variant="circle" />
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
                             <ImagePlus className="w-6 h-6" />
@@ -238,13 +315,24 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                         )}
                       >
                         {value && getImageUrl(value) ? (
-                          <Image
-                            src={getImageUrl(value)}
-                            alt="image"
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover w-full h-full"
-                          />
+                          <>
+                            <Image
+                              src={getImageUrl(value)}
+                              alt="image"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className={cn(
+                                "object-cover w-full h-full",
+                                !idFaceLoaded && "blur-sm"
+                              )}
+                              onLoadingComplete={() => setIdFaceLoaded(true)}
+                            />
+                            {!idFaceLoaded && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Spinner variant="circle" />
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
                             <ImagePlus className="w-6 h-6" />
@@ -288,13 +376,24 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                         )}
                       >
                         {value && getImageUrl(value) ? (
-                          <Image
-                            src={getImageUrl(value)}
-                            alt="image"
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover w-full h-full"
-                          />
+                          <>
+                            <Image
+                              src={getImageUrl(value)}
+                              alt="image"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className={cn(
+                                "object-cover w-full h-full",
+                                !idBackLoaded && "blur-sm"
+                              )}
+                              onLoadingComplete={() => setIdBackLoaded(true)}
+                            />
+                            {!idBackLoaded && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Spinner variant="circle" />
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
                             <ImagePlus className="w-6 h-6" />
@@ -338,13 +437,26 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                         )}
                       >
                         {value && getImageUrl(value) ? (
-                          <Image
-                            src={getImageUrl(value)}
-                            alt="image"
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover w-full h-full"
-                          />
+                          <>
+                            <Image
+                              src={getImageUrl(value)}
+                              alt="image"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className={cn(
+                                "object-cover w-full h-full",
+                                !addressProofLoaded && "blur-sm"
+                              )}
+                              onLoadingComplete={() =>
+                                setAddressProofLoaded(true)
+                              }
+                            />
+                            {!addressProofLoaded && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Spinner variant="circle" />
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
                             <ImagePlus className="w-6 h-6" />
@@ -524,31 +636,21 @@ export function ProfileTab({ user }: { user: IUserObject }) {
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        if (value !== initialValues.roleId) {
-                          console.log("Role changed:", {
-                            from: getRoleName(initialValues.roleId),
-                            to: getRoleName(value),
-                          });
-                        }
-                      }}
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
-                      disabled={isPending}
+                      disabled={isPending || rolesList.length === 0}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a role">
-                            {field.value
-                              ? getRoleName(field.value)
-                              : "Select a role"}
+                            {selectedRoleName}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {ROLES.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
+                        {rolesList.map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
                             {role.name}
                           </SelectItem>
                         ))}

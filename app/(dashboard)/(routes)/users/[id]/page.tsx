@@ -17,7 +17,7 @@ import { useModal } from "@/hooks/use-modal";
 
 import { useGetUserById } from "@/services/users/users-hook";
 import { useGetDevicesById } from "@/services/devices/devices-hook";
-
+import { useGetRolesQuery } from "@/services/roles/roles-hook";
 export default function EditUserPage() {
   const router = useRouter();
   const { id: userId } = useParams();
@@ -29,8 +29,9 @@ export default function EditUserPage() {
   const { data: devices, isLoading: devicesIsLoading } = useGetDevicesById(
     String(userId)
   );
+  const { data: roles, isLoading: rolesIsLoading } = useGetRolesQuery();
 
-  const isLoading = userIsLoading || devicesIsLoading;
+  const isLoading = userIsLoading || devicesIsLoading || rolesIsLoading;
 
   const handleDelete = () => {
     onOpen(ModalType.DELETE_USER, { user: user?.data });
@@ -70,7 +71,10 @@ export default function EditUserPage() {
 
         <div className="mt-6">
           <TabsContent value="profile">
-            <ProfileTab user={user?.data ?? ({} as IUserObject)} />
+            <ProfileTab
+              user={user?.data ?? ({} as IUserObject)}
+              roles={roles?.data ?? []}
+            />
           </TabsContent>
 
           <TabsContent value="devices">
@@ -82,7 +86,7 @@ export default function EditUserPage() {
           </TabsContent>
 
           <TabsContent value="documentation">
-            <DocumentationTab />
+            <DocumentationTab user={user?.data ?? ({} as IUserObject)} />
           </TabsContent>
         </div>
       </Tabs>

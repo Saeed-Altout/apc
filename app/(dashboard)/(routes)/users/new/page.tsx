@@ -29,9 +29,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-import { cn } from "@/lib/utils";
+import { cn, getRoles } from "@/lib/utils";
 import { useAddUserMutation } from "@/services/users/users-hook";
 import { Wrapper } from "@/components/ui/wrapper";
+import { useGetRolesQuery } from "@/services/roles/roles-hook";
 
 const FormSchema = z.object({
   firstname: z
@@ -62,6 +63,7 @@ const FormSchema = z.object({
 export default function NewUserPage() {
   const router = useRouter();
   const { mutateAsync: addUser, isPending } = useAddUserMutation();
+  const { data: roles } = useGetRolesQuery();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -414,7 +416,7 @@ export default function NewUserPage() {
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     value={field.value}
-                    disabled={isPending}
+                    disabled={isPending || !roles?.data}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -422,10 +424,11 @@ export default function NewUserPage() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Admin</SelectItem>
-                      <SelectItem value="2">User</SelectItem>
-                      <SelectItem value="3">Manager</SelectItem>
-                      <SelectItem value="4">Guest</SelectItem>
+                      {getRoles(roles?.data ?? []).map((role) => (
+                        <SelectItem key={role.id} value={role.id.toString()}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

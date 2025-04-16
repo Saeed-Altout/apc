@@ -5,7 +5,7 @@ export interface IParams {
 }
 
 export const UsersService = {
-  EDIT_USER: "/users/admin",
+  EDIT_USER: "/users/admin/",
   ADD_USER: "/users/admin",
   ROOT: "/users",
   UPLOAD_ID_CARD: "/upload/id-cards",
@@ -62,17 +62,15 @@ export const UsersService = {
   addUser: async (data: IAddUserCredentials): Promise<IUserResponse> => {
     try {
       const formData = new FormData();
-
-      formData.append("phonenumber", data.phonenumber);
-      formData.append("firstname", data.firstname);
-      formData.append("lastname", data.lastname);
-      formData.append("email", data.email);
-      formData.append("roleId", data.roleId);
-      formData.append("addressLine", data.addressLine);
-      formData.append("city", data.city);
-      formData.append("country", data.country);
-      formData.append("state", data.state);
-
+      if (data.phonenumber) formData.append("phonenumber", data.phonenumber);
+      if (data.firstname) formData.append("firstname", data.firstname);
+      if (data.lastname) formData.append("lastname", data.lastname);
+      if (data.email) formData.append("email", data.email);
+      if (data.roleId) formData.append("roleId", data.roleId);
+      if (data.addressLine) formData.append("addressLine", data.addressLine);
+      if (data.city) formData.append("city", data.city);
+      if (data.country) formData.append("country", data.country);
+      if (data.state) formData.append("state", data.state);
       if (data.avatar) formData.append("avatar", data.avatar);
       if (data.idCardFace) formData.append("idCardFace", data.idCardFace);
       if (data.idCardBack) formData.append("idCardBack", data.idCardBack);
@@ -97,15 +95,15 @@ export const UsersService = {
     try {
       const formData = new FormData();
 
-      formData.append("phonenumber", data.phonenumber ?? "");
-      formData.append("firstname", data.firstname ?? "");
-      formData.append("lastname", data.lastname ?? "");
-      formData.append("email", data.email ?? "");
-      formData.append("roleId", data.roleId ?? "");
-      formData.append("addressLine", data.addressLine ?? "");
-      formData.append("city", data.city ?? "");
-      formData.append("country", data.country ?? "");
-      formData.append("state", data.state ?? "");
+      if (data.phonenumber) formData.append("phonenumber", data.phonenumber);
+      if (data.firstname) formData.append("firstname", data.firstname);
+      if (data.lastname) formData.append("lastname", data.lastname);
+      if (data.email) formData.append("email", data.email);
+      if (data.roleId) formData.append("roleId", data.roleId);
+      if (data.addressLine) formData.append("addressLine", data.addressLine);
+      if (data.city) formData.append("city", data.city);
+      if (data.country) formData.append("country", data.country);
+      if (data.state) formData.append("state", data.state);
 
       if (data.avatar) formData.append("avatar", data.avatar);
       if (data.idCardFace) formData.append("idCardFace", data.idCardFace);

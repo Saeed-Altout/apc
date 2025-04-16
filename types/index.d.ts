@@ -71,26 +71,26 @@ declare type IPermissionResponse = {
   };
 };
 declare type IUserObject = {
-  avatar: string;
+  avatar: {
+    id: number;
+    link: string;
+    timeCreated: string;
+    timeUpdated: string | null;
+  };
   email: string;
   firstname: string;
   id: number;
   lastname: string;
   timeCreated: string;
-  timeUpdated: string;
+  timeUpdated: string | null;
   user: {
-    id: number;
-    inactiveReason: string;
-    phoneNumber: string;
-    status: string;
-    telegramUsername: string;
     accountManager: {
       avatar: string;
       id: number;
       name: string;
       phoneNumber: string;
       timeCreated: string;
-      timeUpdated: string;
+      timeUpdated: string | null;
     };
     address: {
       addressLine: string;
@@ -98,34 +98,38 @@ declare type IUserObject = {
         id: number;
         link: string;
         timeCreated: string;
-        timeUpdated: string;
+        timeUpdated: string | null;
       };
       city: string;
       country: string;
       id: number;
       state: string;
       timeCreated: string;
-      timeUpdated: string;
+      timeUpdated: string | null;
     };
+    id: number;
     idCardBack: {
       id: number;
       link: string;
       timeCreated: string;
-      timeUpdated: string;
+      timeUpdated: string | null;
     };
     idCardFace: {
       id: number;
       link: string;
       timeCreated: string;
-      timeUpdated: string;
+      timeUpdated: string | null;
     };
+    inactiveReason: string | null;
+    phoneNumber: string;
     role: {
       id: number;
       name: string;
-      permissions: IPermissionResponse[];
       timeCreated: string;
-      timeUpdated: string;
+      timeUpdated: string | null;
     };
+    status: string;
+    telegramUsername: string | null;
   };
 };
 
@@ -203,4 +207,22 @@ declare type IDevice = {
   is_main: boolean;
   timeCreated: string;
   timeUpdated: string;
+};
+
+declare type IRole = {
+  id: number;
+  name: string;
+  permissions: {
+    boolValue: boolean;
+    permission: {
+      action: string;
+      entityType: {
+        id: number;
+        name: string;
+      };
+      id: number;
+    };
+  }[];
+  timeCreated: string;
+  timeUpdated: string | null;
 };

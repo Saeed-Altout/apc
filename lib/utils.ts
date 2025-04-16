@@ -15,17 +15,21 @@ export function getImageUrl(value: any) {
   return "";
 }
 
-export function getRoleId(role: any): string {
-  if (!role) return "";
-  if (typeof role === "string") return role;
-  if (typeof role === "number") return String(role);
-  if (typeof role === "object" && role.id) {
-    return String(role.id);
-  }
-  return "";
+export function getRoleName(
+  roleId: string,
+  roles: { id: number; name: string }[]
+): string {
+  const role = roles.find((r) => r.id === +roleId);
+  return role ? role.name : "Unknown Role";
 }
 
-export function getRoleName(roleId: string): string {
-  const role = ROLES.find((r) => r.id === roleId);
-  return role ? role.name : "Unknown Role";
+export function getRoles(roles: IRole[]): { id: number; name: string }[] {
+  return roles
+    .map((role) => {
+      return {
+        id: role.id,
+        name: role.name,
+      };
+    })
+    .sort((a, b) => a.id - b.id);
 }
