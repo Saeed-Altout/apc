@@ -28,10 +28,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Wrapper } from "@/components/ui/wrapper";
 
 import { cn, getRoles } from "@/lib/utils";
 import { useAddUserMutation } from "@/services/users/users-hook";
-import { Wrapper } from "@/components/ui/wrapper";
 import { useGetRolesQuery } from "@/services/roles/roles-hook";
 
 const FormSchema = z.object({
@@ -88,7 +88,6 @@ export default function NewUserPage() {
     try {
       await addUser(values);
       form.reset();
-      router.push("/users");
     } catch (error) {
       console.error(error);
     }

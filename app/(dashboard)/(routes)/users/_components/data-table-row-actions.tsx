@@ -33,10 +33,12 @@ export function DataTableRowActions<TData>({
   };
 
   const handleBlock = () => {
+    // @ts-ignore
     onOpen(ModalType.BLOCK_USER, { user });
   };
 
   const handleDelete = () => {
+    // @ts-ignore
     onOpen(ModalType.DELETE_USER, { user });
   };
 

@@ -7,20 +7,20 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useBlockMultipleUsers } from "@/services/users/users-hook";
+import { useBlockMultipleUsersMutation } from "@/services/users/users-hook";
 
 export const BlockUsersModal = () => {
   const { isOpen, type, onClose, data } = useModal();
   const { mutateAsync: blockMultipleUsers, isPending } =
-    useBlockMultipleUsers();
+    useBlockMultipleUsersMutation();
 
   const isModalOpen =
-    isOpen && !!data?.usersIds && type === ModalType.BLOCK_MULTIPLE_USERS;
+    isOpen && !!data?.ids && type === ModalType.BLOCK_MULTIPLE_USERS;
 
   const onConfirm = async () => {
-    if (data?.usersIds) {
+    if (data?.ids) {
       await blockMultipleUsers({
-        usersIds: data?.usersIds,
+        usersIds: data.ids,
       });
     }
   };

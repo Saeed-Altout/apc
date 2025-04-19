@@ -1,18 +1,19 @@
 "use client";
 import * as React from "react";
-import { useRouter } from "next/navigation";
 
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from "next/navigation";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useDeleteUser } from "@/services/users/users-hook";
+import { useDeleteUserMutation } from "@/services/users/users-hook";
+
 export const DeleteUserModal = () => {
   const router = useRouter();
   const { isOpen, type, onClose, data } = useModal();
-  const { mutateAsync: deleteUser, isPending } = useDeleteUser();
+  const { mutateAsync: deleteUser, isPending } = useDeleteUserMutation();
 
   const isModalOpen =
     isOpen && !!data?.user?.id && type === ModalType.DELETE_USER;
@@ -21,9 +22,10 @@ export const DeleteUserModal = () => {
     if (data?.user?.id) {
       try {
         await deleteUser(String(data.user.id));
-        onClose();
-        router.push("/users");
-      } catch (error) {}
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 

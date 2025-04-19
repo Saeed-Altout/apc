@@ -7,11 +7,11 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useBlockUser } from "@/services/users/users-hook";
+import { useBlockUserMutation } from "@/services/users/users-hook";
 
 export const BlockUserModal = () => {
   const { isOpen, type, onClose, data } = useModal();
-  const { mutateAsync: blockUser, isPending } = useBlockUser();
+  const { mutateAsync: blockUser, isPending } = useBlockUserMutation();
 
   const isModalOpen = isOpen && !!data?.user && type === ModalType.BLOCK_USER;
 

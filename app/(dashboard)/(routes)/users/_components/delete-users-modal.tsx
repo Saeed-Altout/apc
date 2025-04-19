@@ -7,19 +7,20 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
-import { useDeleteMultipleUsers } from "@/services/users/users-hook";
+import { useDeleteMultipleUsersMutation } from "@/services/users/users-hook";
 
 export const DeleteUsersModal = () => {
   const { isOpen, type, onClose, data } = useModal();
-  const { mutateAsync: deleteUsers, isPending } = useDeleteMultipleUsers();
+  const { mutateAsync: deleteUsers, isPending } =
+    useDeleteMultipleUsersMutation();
 
   const isModalOpen =
-    isOpen && !!data?.usersIds && type === ModalType.DELETE_MULTIPLE_USERS;
+    isOpen && !!data?.ids && type === ModalType.DELETE_MULTIPLE_USERS;
 
   const onConfirm = async () => {
-    if (data?.usersIds) {
+    if (data?.ids) {
       await deleteUsers({
-        usersIds: data.usersIds,
+        usersIds: data.ids,
       });
     }
   };

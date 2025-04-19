@@ -6,7 +6,6 @@ import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { AddUserModal } from "./(routes)/users/_components/add-user-modal";
 import { BlockUserModal } from "./(routes)/users/_components/block-user-modal";
 import { DeleteUserModal } from "./(routes)/users/_components/delete-user-modal";
 import { LogoutModal } from "../auth/_components/logout-modal";
@@ -46,12 +45,11 @@ export default function DashboardLayout({
           </header>
           <div className="flex flex-1 flex-col gap-6 p-4">
             {children}
-            <AddUserModal />
-            <BlockUserModal />
             <DeleteUserModal />
-            <LogoutModal />
             <DeleteUsersModal />
             <BlockUsersModal />
+            <BlockUserModal />
+            <LogoutModal />
           </div>
         </SidebarInset>
       </SidebarProvider>

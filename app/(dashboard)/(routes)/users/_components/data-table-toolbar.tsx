@@ -41,14 +41,14 @@ export function DataTableToolbar<TData>({
   const handleDeleteMultipleUsers = () => {
     onOpen(ModalType.DELETE_MULTIPLE_USERS, {
       // @ts-ignore
-      usersId: selectedRows.map((row) => row.id),
+      ids: selectedRows.map((row) => row.id),
     });
   };
 
   const handleBlockMultipleUsers = () => {
     onOpen(ModalType.BLOCK_MULTIPLE_USERS, {
       // @ts-ignore
-      usersId: selectedRows.map((row) => row.id),
+      ids: selectedRows.map((row) => row.id),
     });
   };
 

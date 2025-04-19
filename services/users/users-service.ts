@@ -154,9 +154,7 @@ export const UsersService = {
     data: IBlockMultipleUsersCredentials
   ): Promise<void> => {
     try {
-      await apiClient.patch(UsersService.ROOT + "/admin/ban", {
-        data,
-      });
+      await apiClient.patch(UsersService.ROOT + "/admin/ban", data);
     } catch (error) {
       throw error;
     }

@@ -15,15 +15,16 @@ import { DevicesTab } from "./_components/devices-tab";
 import { ModalType } from "@/config/enums";
 import { useModal } from "@/hooks/use-modal";
 
-import { useGetUserById } from "@/services/users/users-hook";
+import { useGetUserByIdQuery } from "@/services/users/users-hook";
 import { useGetDevicesById } from "@/services/devices/devices-hook";
 import { useGetRolesQuery } from "@/services/roles/roles-hook";
+
 export default function EditUserPage() {
   const router = useRouter();
   const { id: userId } = useParams();
 
   const { onOpen } = useModal();
-  const { data: user, isLoading: userIsLoading } = useGetUserById(
+  const { data: user, isLoading: userIsLoading } = useGetUserByIdQuery(
     String(userId)
   );
   const { data: devices, isLoading: devicesIsLoading } = useGetDevicesById(

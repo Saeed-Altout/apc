@@ -9,7 +9,7 @@ interface ModalStore {
   isOpen: boolean;
   data?: {
     user?: IUserObject;
-    usersIds?: number[];
+    ids?: number[];
     device?: IDevice;
     request?: Request;
     transaction?: Transaction;
@@ -19,7 +19,7 @@ interface ModalStore {
     type: ModalType,
     data?: {
       user?: IUserObject;
-      usersIds?: number[];
+      ids?: number[];
       device?: IDevice;
       request?: Request;
       transaction?: Transaction;
