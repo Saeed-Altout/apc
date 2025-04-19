@@ -11,7 +11,11 @@ interface ProtectedRoutesProps {
 }
 
 // Define public paths that don't need authentication
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/new-password"];
+const PUBLIC_PATHS = [
+  "/auth/login",
+  "/auth/forgot-password",
+  "/auth/new-password",
+];
 
 export const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({
   children,

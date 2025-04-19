@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { PublicRoutes } from "@/guards/public-routes";
+import { OTPlessScript } from "./_components/otp-less-script";
 
 interface AuthLayoutProps {
   children: React.ReactNode;

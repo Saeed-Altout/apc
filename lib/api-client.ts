@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 
 import { AuthService } from "@/services/auth/auth-service";
 import { StorageService } from "@/services/token/storage-service";
+import { AUTH_DEFAULT_REDIRECT } from "@/config/constants";
 
 const defaultConfig: AxiosRequestConfig = {
   baseURL:
@@ -115,7 +116,7 @@ apiClient.interceptors.response.use(
           processQueue(new Error("Token refresh failed"), null);
 
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            window.location.href = AUTH_DEFAULT_REDIRECT;
           }
 
           return Promise.reject(new Error("Authentication failed"));
@@ -138,7 +139,7 @@ apiClient.interceptors.response.use(
 
         // Only redirect if in browser environment
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.href = AUTH_DEFAULT_REDIRECT;
         }
 
         return Promise.reject(refreshError);

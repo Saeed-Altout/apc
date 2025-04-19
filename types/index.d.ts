@@ -226,3 +226,12 @@ declare type IRole = {
   timeCreated: string;
   timeUpdated: string | null;
 };
+
+declare type ILoginWithWhatsappCredentials = {
+  token: string;
+};
+
+declare type ILoginWithWhatsappResponse = IAxiosResponse<{
+  access_token: IAccessToken;
+  refresh_token: IRefreshToken;
+}>;

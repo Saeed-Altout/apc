@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AUTH_DEFAULT_REDIRECT } from "@/config/constants";
 
 export default function AuthNotFound() {
   return (
@@ -10,7 +11,7 @@ export default function AuthNotFound() {
         moved.
       </p>
       <Link
-        href="/login"
+        href={AUTH_DEFAULT_REDIRECT}
         className="px-4 py-2 mt-4 text-sm font-medium transition-colors bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
       >
         Go to Login

@@ -27,7 +27,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { AUTH_DEFAULT_REDIRECT } from "@/config/constants";
 const newPasswordSchema = z
   .object({
     password: z
@@ -88,7 +88,7 @@ export default function NewPasswordPage() {
   };
 
   const handleBackToLogin = () => {
-    router.push("/login");
+    router.push(AUTH_DEFAULT_REDIRECT);
   };
 
   const hasCapitalLetter = form.watch("password")?.match(/[A-Z]/);

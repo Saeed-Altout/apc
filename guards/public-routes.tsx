@@ -11,7 +11,11 @@ interface PublicRoutesProps {
 }
 
 // Define auth-only paths that should redirect to dashboard if authenticated
-const AUTH_PATHS = ["/login", "/forgot-password", "/new-password"];
+const AUTH_PATHS = [
+  "/auth/login",
+  "/auth/forgot-password",
+  "/auth/new-password",
+];
 
 export const PublicRoutes: React.FC<PublicRoutesProps> = ({ children }) => {
   const router = useRouter();

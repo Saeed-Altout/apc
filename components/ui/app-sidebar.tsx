@@ -25,7 +25,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { ROUTES } from "@/config/constants";
-import { LogoutButton } from "@/app/(auth)/_components/logout-button";
+import { LogoutButton } from "@/app/auth/_components/logout-button";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();

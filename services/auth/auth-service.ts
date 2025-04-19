@@ -7,6 +7,22 @@ export const AuthService = {
   LOGOUT_ACCESS: "/auth/logout-access",
   LOGOUT_REFRESH: "/auth/logout-refresh",
   REFRESH: "/auth/refresh",
+  WHATSAPP_LOGIN: "/auth/whatsapp-auth",
+
+  loginWithWhatsapp: async (
+    data: ILoginWithWhatsappCredentials
+  ): Promise<ILoginResponse> => {
+    try {
+      const response = await apiClient.post<ILoginResponse>(
+        AuthService.WHATSAPP_LOGIN,
+        data
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   login: async (data: ILoginCredentials): Promise<ILoginResponse> => {
     try {
@@ -14,9 +30,6 @@ export const AuthService = {
         AuthService.LOGIN,
         data
       );
-
-      const { access_token, refresh_token } = response.data.data;
-      StorageService.setTokens(access_token, refresh_token);
 
       return response.data;
     } catch (error) {
@@ -48,9 +61,6 @@ export const AuthService = {
           Authorization: `Bearer ${refreshToken}`,
         },
       });
-
-      const { access_token, refresh_token } = response.data.data;
-      StorageService.setTokens(access_token, refresh_token);
 
       return response.data;
     } catch (error) {

@@ -10,13 +10,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { WhatsappProvider } from "./whatsapp-provider";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { FaWhatsapp } from "react-icons/fa";
+import { Spinner } from "@/components/ui/spinner";
 
 interface WrapperCardProps {
   children: React.ReactNode;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   whatsappProvider?: boolean;
+  className?: string;
+  onClick?: () => void;
 }
 
 export const WrapperCard = ({
@@ -24,14 +29,22 @@ export const WrapperCard = ({
   title,
   description,
   whatsappProvider = true,
+  className,
+  onClick,
 }: WrapperCardProps) => {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
-          {title}
-        </CardTitle>
-        <CardDescription className="text-center">{description}</CardDescription>
+        {title && (
+          <CardTitle className="text-2xl font-bold text-center">
+            {title}
+          </CardTitle>
+        )}
+        {description && (
+          <CardDescription className="text-center">
+            {description}
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>{children}</CardContent>
       {whatsappProvider && (
@@ -47,7 +60,14 @@ export const WrapperCard = ({
                 </span>
               </div>
             </div>
-            <WhatsappProvider />
+            <Button
+              type="button"
+              className="w-full flex items-center justify-center bg-[#25D366] hover:bg-[#25D366]/90 text-white"
+              onClick={onClick}
+            >
+              <FaWhatsapp size={18} />
+              WhatsApp {false && <Spinner variant="circle" />}
+            </Button>
           </div>
         </CardFooter>
       )}
