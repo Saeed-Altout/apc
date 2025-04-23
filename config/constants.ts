@@ -19,30 +19,35 @@ export const ROUTES = [
     url: "/",
     items: [],
     icon: Home,
+    disabled: false,
   },
   {
     title: "Users",
     url: "/users",
     items: [],
     icon: Users,
+    disabled: false,
   },
   {
     title: "Requests",
     url: "/requests",
     items: [],
     icon: File,
+    disabled: true,
   },
   {
     title: "Transactions",
     url: "/transactions",
     icon: File,
     items: [],
+    disabled: true,
   },
   {
     title: "Kyc files",
     url: "/kyc-files",
     items: [],
     icon: Stars,
+    disabled: true,
   },
   {
     title: "Settings",
@@ -62,6 +67,7 @@ export const ROUTES = [
       },
     ],
     icon: Settings,
+    disabled: true,
   },
 ];
 
