@@ -3,12 +3,14 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  keepPreviousData,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useModal } from "@/hooks/use-modal";
 import { UsersService, IParams } from "@/services/users/users-service";
+import { AxiosError } from "axios";
 /**
  * Hook to fetch users with pagination and filtering
  * @param {Object} options - Query options
@@ -20,6 +22,7 @@ export const useGetUsersQuery = ({ params }: { params: IParams }) => {
     queryKey: ["users", params],
     queryFn: () => UsersService.getUsers({ params }),
     enabled: !!params,
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -41,18 +44,20 @@ export const useGetUserByIdQuery = (id: string) => {
  * @returns {Object} Mutation object with delete function
  */
 export const useDeleteUserMutation = () => {
-  const { onClose } = useModal();
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
   return useMutation({
     mutationKey: ["delete-user"],
     mutationFn: (id: string) => UsersService.deleteUser(id),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("User deleted successfully");
+      toast.success(data.message || "User deleted successfully");
       onClose();
     },
-    onError: () => {
-      toast.error("Failed to delete user");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -62,18 +67,20 @@ export const useDeleteUserMutation = () => {
  * @returns {Object} Mutation object with block function
  */
 export const useBlockUserMutation = () => {
-  const { onClose } = useModal();
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
   return useMutation({
     mutationKey: ["block-user"],
     mutationFn: (id: string) => UsersService.blockUser(id),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("User blocked successfully");
+      toast.success(data.message || "User blocked successfully");
       onClose();
     },
-    onError: () => {
-      toast.error("Failed to block user");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -83,19 +90,21 @@ export const useBlockUserMutation = () => {
  * @returns {Object} Mutation object with delete function for multiple users
  */
 export const useDeleteMultipleUsersMutation = () => {
-  const { onClose } = useModal();
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
   return useMutation({
     mutationKey: ["delete-multiple-users"],
     mutationFn: (data: IDeleteMultipleUsersCredentials) =>
       UsersService.deleteMultipleUsers(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("Users deleted successfully");
+      toast.success(data.message || "Users deleted successfully");
       onClose();
     },
-    onError: () => {
-      toast.error("Failed to delete multiple users");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -105,19 +114,21 @@ export const useDeleteMultipleUsersMutation = () => {
  * @returns {Object} Mutation object with block function for multiple users
  */
 export const useBlockMultipleUsersMutation = () => {
-  const { onClose } = useModal();
   const queryClient = useQueryClient();
+  const { onClose } = useModal();
   return useMutation({
     mutationKey: ["block-multiple-users"],
     mutationFn: (data: IBlockMultipleUsersCredentials) =>
       UsersService.blockMultipleUsers(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("Users blocked successfully");
+      toast.success(data.message || "Users blocked successfully");
       onClose();
     },
-    onError: () => {
-      toast.error("Failed to block multiple users");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -132,13 +143,15 @@ export const useAddUserMutation = () => {
   return useMutation({
     mutationKey: ["add-user"],
     mutationFn: (data: IAddUserCredentials) => UsersService.addUser(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("User added successfully");
+      toast.success(data.message || "User added successfully");
       router.push("/users");
     },
-    onError: () => {
-      toast.error("Failed to add user");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -156,13 +169,16 @@ export const useUpdateUserMutation = ({ id }: { id: string }) => {
     mutationKey: ["update-user"],
     mutationFn: (data: IUpdateUserCredentials) =>
       UsersService.updateUser(id, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateUsersQuery(queryClient);
-      toast.success("User updated successfully");
+      invalidateUserQuery(queryClient, id);
+      toast.success(data.message || "User updated successfully");
       router.push("/users");
     },
-    onError: () => {
-      toast.error("Failed to update user");
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
     },
   });
 };
@@ -173,4 +189,7 @@ export const useUpdateUserMutation = ({ id }: { id: string }) => {
  */
 export const invalidateUsersQuery = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ["users"] });
+};
+export const invalidateUserQuery = (queryClient: QueryClient, id: string) => {
+  queryClient.invalidateQueries({ queryKey: ["user", id] });
 };

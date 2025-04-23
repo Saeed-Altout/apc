@@ -132,8 +132,29 @@ declare type IBlockMultipleUsersCredentials = { usersIds: number[] };
 declare type IUserResponse = IAxiosResponse<IUserObject>;
 declare type IUploadIdCardResponse = IAxiosResponse<any>;
 declare type IUserPersonalInformationResponse = IAxiosResponse<any>;
+
+declare type IUserItem = {
+  email: string;
+  firstname: string;
+  id: number;
+  lastname: string;
+  timeCreated: string | Date;
+  timeUpdated: string | Date;
+  user: {
+    id: number;
+    phoneNumber: string;
+    role: {
+      id: number;
+      name: string;
+      timeCreated: string;
+      timeUpdated: string;
+    };
+    status: string;
+    telegramUsername: string;
+  };
+};
 declare type IUsersResponse = IAxiosResponse<{
-  items: IUser[];
+  items: IUserItem[];
   limit: number;
   nextNum: number;
   page: number;

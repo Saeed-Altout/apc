@@ -2,16 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Badge } from "@/components/ui/badge";
+import { Account } from "@/schemas/account";
+import { format } from "date-fns";
 
-export type Account = {
-  id: number;
-  name: string;
-  baseCurrency: string;
-  status: boolean;
-};
-
-export const AccountColumns: ColumnDef<Account>[] = [
+export const columns: ColumnDef<Account>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -20,87 +14,27 @@ export const AccountColumns: ColumnDef<Account>[] = [
     },
   },
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "balance",
+    header: "Balance",
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("name")}</div>;
+      return <div className="font-medium">{row.getValue("balance")}</div>;
     },
   },
   {
-    accessorKey: "baseCurrency",
-    header: "Base Currency",
+    accessorKey: "login",
+    header: "Login",
     cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("baseCurrency")}</div>;
+      return <div className="font-medium">{row.getValue("login")}</div>;
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "timeCreated",
+    header: "Created At",
     cell: ({ row }) => {
-      const status = row.original.status;
-
       return (
-        <Badge
-          variant={status ? "success" : "destructive"}
-          className={
-            status
-              ? "bg-green-100 text-green-800 hover:bg-green-200"
-              : "bg-red-100 text-red-800 hover:bg-red-200"
-          }
-        >
-          {status ? "Active" : "UnActive"}
-        </Badge>
-      );
-    },
-  },
-];
-
-export type Wallet = {
-  id: number;
-  name: string;
-  walletId: string;
-  status: boolean;
-};
-
-export const walletColumns: ColumnDef<Wallet>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("id")}</div>;
-    },
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("name")}</div>;
-    },
-  },
-  {
-    accessorKey: "walletId",
-    header: "Wallet ID",
-    cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("walletId")}</div>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-
-      return (
-        <Badge
-          variant={status ? "success" : "destructive"}
-          className={
-            status
-              ? "bg-green-100 text-green-800 hover:bg-green-200"
-              : "bg-red-100 text-red-800 hover:bg-red-200"
-          }
-        >
-          {status ? "Active" : "UnActive"}
-        </Badge>
+        <div className="font-medium">
+          {format(row.getValue("timeCreated"), "dd/MM/yyyy")}
+        </div>
       );
     },
   },

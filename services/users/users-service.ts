@@ -122,17 +122,19 @@ export const UsersService = {
     }
   },
 
-  deleteUser: async (id: string): Promise<void> => {
+  deleteUser: async (id: string): Promise<IAxiosResponse<void>> => {
     try {
-      await apiClient.delete(UsersService.ROOT + "/admin/" + id);
+      const res = await apiClient.delete(UsersService.ROOT + "/admin/" + id);
+      return res.data;
     } catch (error) {
       throw error;
     }
   },
 
-  blockUser: async (id: string): Promise<void> => {
+  blockUser: async (id: string): Promise<IAxiosResponse<void>> => {
     try {
-      await apiClient.patch(UsersService.ROOT + "/admin/" + id);
+      const res = await apiClient.patch(UsersService.ROOT + "/admin/" + id);
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -140,11 +142,12 @@ export const UsersService = {
 
   deleteMultipleUsers: async (
     data: IDeleteMultipleUsersCredentials
-  ): Promise<void> => {
+  ): Promise<IAxiosResponse<void>> => {
     try {
-      await apiClient.delete(UsersService.ROOT + "/admin/delete", {
+      const res = await apiClient.delete(UsersService.ROOT + "/admin/delete", {
         data,
       });
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -152,9 +155,10 @@ export const UsersService = {
 
   blockMultipleUsers: async (
     data: IBlockMultipleUsersCredentials
-  ): Promise<void> => {
+  ): Promise<IAxiosResponse<void>> => {
     try {
-      await apiClient.patch(UsersService.ROOT + "/admin/ban", data);
+      const res = await apiClient.patch(UsersService.ROOT + "/admin/ban", data);
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -163,7 +167,7 @@ export const UsersService = {
   updateUserPassword: async (
     id: string,
     data: IUpdateUserPasswordCredentials
-  ): Promise<IUserResponse> => {
+  ): Promise<IAxiosResponse<void>> => {
     try {
       const res = await apiClient.put(
         UsersService.ROOT + UsersService.UPDATE_PASSWORD + "/" + id,

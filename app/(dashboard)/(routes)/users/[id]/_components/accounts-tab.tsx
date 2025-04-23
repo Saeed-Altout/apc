@@ -7,16 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { DataTable } from "./data-table";
-import { AccountColumns, walletColumns } from "./columns";
+import { columns } from "./columns";
 import { AddAccountModal } from "./add-account-modal";
 import { AddWalletModal } from "./add-wallet-modal";
 import { useModal } from "@/hooks/use-modal";
 import { ModalType } from "@/config/enums";
+import { Account } from "@/schemas/account";
 
-export const AccountsTab = ({ accounts }: { accounts: any }) => {
-  const { onOpen, isOpen, type, data } = useModal();
-  console.log(accounts);
-  const wallets = accounts;
+export const AccountsTab = ({ accounts }: { accounts: Account[] }) => {
+  const { onOpen } = useModal();
+
+  const formattedAccounts =
+    accounts.length > 0
+      ? accounts.filter((account) => account.type === "TRADING")
+      : [];
+  const formattedWallets =
+    accounts.length > 0
+      ? accounts.filter((account) => account.type === "DEMO")
+      : [];
 
   return (
     <>
@@ -33,7 +41,7 @@ export const AccountsTab = ({ accounts }: { accounts: any }) => {
               Add account
             </Button>
           </div>
-          <DataTable columns={AccountColumns} data={accounts} />
+          <DataTable columns={columns} data={formattedAccounts} />
         </div>
         <Separator />
         <div className="space-y-4">
@@ -48,7 +56,7 @@ export const AccountsTab = ({ accounts }: { accounts: any }) => {
               Add wallet
             </Button>
           </div>
-          <DataTable columns={walletColumns} data={wallets} />
+          <DataTable columns={columns} data={formattedWallets} />
         </div>
       </div>
 
