@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { seoConfig } from "@/config";
 import { Toaster } from "@/components/ui/sonner";
 import ReactQueryProvider from "@/providers/react-query-provider";
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
-
-const inter = Inter({ subsets: ["latin"] });
+// Removed Google Fonts imports due to network connectivity issues
+// const montserrat = Montserrat({
+//   variable: "--font-montserrat",
+//   subsets: ["latin"],
+//   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+// });
+//
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: seoConfig.defaultTitle,
@@ -28,7 +27,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.className} ${inter.className} antialiased`}
+        // Using system fonts as fallback
+        className="font-sans antialiased"
       >
         <ReactQueryProvider>
           {children}
