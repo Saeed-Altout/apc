@@ -28,47 +28,47 @@ export const ROUTES = [
     icon: Users,
     disabled: false,
   },
-  {
-    title: "Requests",
-    url: "/requests",
-    items: [],
-    icon: File,
-    disabled: true,
-  },
-  {
-    title: "Transactions",
-    url: "/transactions",
-    icon: File,
-    items: [],
-    disabled: true,
-  },
-  {
-    title: "Kyc files",
-    url: "/kyc-files",
-    items: [],
-    icon: Stars,
-    disabled: true,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    items: [
-      {
-        title: "Translation",
-        url: "/translation",
-      },
-      {
-        title: "Operations",
-        url: "/operations",
-      },
-      {
-        title: "Admins",
-        url: "/admins",
-      },
-    ],
-    icon: Settings,
-    disabled: true,
-  },
+  // {
+  //   title: "Requests",
+  //   url: "/requests",
+  //   items: [],
+  //   icon: File,
+  //   disabled: true,
+  // },
+  // {
+  //   title: "Transactions",
+  //   url: "/transactions",
+  //   icon: File,
+  //   items: [],
+  //   disabled: true,
+  // },
+  // {
+  //   title: "Kyc files",
+  //   url: "/kyc-files",
+  //   items: [],
+  //   icon: Stars,
+  //   disabled: true,
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/settings",
+  //   items: [
+  //     {
+  //       title: "Translation",
+  //       url: "/translation",
+  //     },
+  //     {
+  //       title: "Operations",
+  //       url: "/operations",
+  //     },
+  //     {
+  //       title: "Admins",
+  //       url: "/admins",
+  //     },
+  //   ],
+  //   icon: Settings,
+  //   disabled: true,
+  // },
 ];
 
 export const mockRequests = [

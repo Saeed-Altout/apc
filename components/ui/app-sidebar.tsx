@@ -67,7 +67,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <CollapsibleContent>
                     <SidebarGroupContent>
                       <SidebarMenu className="pl-6">
-                        {item.items.map((subItem) => {
+                        {item.items.map((subItem: any) => {
                           const subItemPath = `${item.url}${subItem.url}`;
                           const isSubActive =
                             pathname === subItemPath ||
